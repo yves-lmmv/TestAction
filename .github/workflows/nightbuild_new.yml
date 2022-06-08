@@ -22,26 +22,29 @@ on:
         required: false
         default: ''
       skipAptGet: 
-        description: 'do apt get'
+        description: 'Apt get'
         type: boolean
         # required: false
         default: 'true'
       skipCheckout: 
-        description: 'skip checkout'
-        required: false
-        default: ''
+        description: 'code Checkout'
+        type: boolean
+        #required: false
+        default: 'true'
       skipBuild: 
-        description: 'skip build'
-        required: false
-        default: ''
+        description: 'Build'
+        type: boolean
+        #required: false
+        default: 'true'
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
         default: '-v'
       skipDebian: 
-        description: 'skip debian build'
-        required: false
-        default: ''
+        description: 'Generate Debian'
+        type: boolean
+        #required: false
+        default: 'true'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
