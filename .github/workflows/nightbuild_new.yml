@@ -22,9 +22,10 @@ on:
         required: false
         default: ''
       skipAptGet: 
-        description: 'skip apt get'
-        required: false
-        default: ''
+        description: 'do apt get'
+        type: boolean
+        # required: false
+        default: 'true'
       skipCheckout: 
         description: 'skip checkout'
         required: false
