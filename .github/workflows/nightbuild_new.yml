@@ -4,11 +4,11 @@ name: BuildRelease_new
 
 # Controls when the workflow will run 
 on:
-  schedule:
+  #schedule:
     # * is a special character in YAML so you have to quote this string
     # NOTE : The time is badly set somewhere as it is NOT UTC.
     # This cron run at midnight with 0 4....
-    - cron:  '0 4 * * *'
+    #- cron:  '0 4 * * *'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
