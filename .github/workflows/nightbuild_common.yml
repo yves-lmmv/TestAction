@@ -38,8 +38,8 @@ jobs:
       # IMPORTANT : ALL default are set to true like the list above
       # the other string variable are empty so this is not a problem
       - name: Export user input default
-        with:
-          configuration-path: ${{ inputs.config-path }}
+        # with:
+        #   configuration-path: ${{ inputs.config-path }}
         id: name
         run: |
           echo "GITHUB_ENV=$GITHUB_ENV"
