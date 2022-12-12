@@ -46,14 +46,14 @@ jobs:
           ls -l $GITHUB_ENV
           
           echo "configuration-path=${{ inputs.config_path }}"
-          echo "doAptGet=${{ github.event.inputs.doAptGet || true }}" >> $GITHUB_ENV
+          echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
           echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
-          # echo "doCheckout=${{ github.event.inputs.doCheckout || true }}" >> $GITHUB_ENV
-          # echo "doBuild=${{ github.event.inputs.doBuild || true }}" >> $GITHUB_ENV
-          # echo "doDebian=${{ github.event.inputs.doDebian || true }}" >> $GITHUB_ENV
-          # echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload || true }}" >> $GITHUB_ENV
-          # echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression || true }}" >> $GITHUB_ENV
-          # echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload || true }}" >> $GITHUB_ENV
+          echo "doCheckout=${{ github.event.inputs.doCheckout }}" >> $GITHUB_ENV
+          echo "doBuild=${{ github.event.inputs.doBuild }}" >> $GITHUB_ENV
+          echo "doDebian=${{ github.event.inputs.doDebian }}" >> $GITHUB_ENV
+          echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload }}" >> $GITHUB_ENV
+          echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression }}" >> $GITHUB_ENV
+          echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload }}" >> $GITHUB_ENV
 
           cat $GITHUB_ENV
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
