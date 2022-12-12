@@ -8,7 +8,15 @@ env:
 # Controls when the workflow will run 
 on:
   workflow_call:
-    
+    inputs:
+      # pass in environment through manual trigger, if not passed in, default to 'dev'
+      env:
+        required: true
+        type: string
+        default: 'dev'
+      config-path: true
+        type: string
+        default: 'dev'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   #reusable_workflow_job:
@@ -30,7 +38,6 @@ jobs:
       # the other string variable are empty so this is not a problem
       - name: Export user input default
         with:
-          repo-token: ${{ secrets.envPAT }}
           configuration-path: ${{ inputs.config-path }}
         id: name
         run: |
