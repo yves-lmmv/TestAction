@@ -14,7 +14,8 @@ on:
         required: true
         type: string
         default: 'dev'
-      config-path: true
+      config-path: 
+        required: true
         type: string
         default: 'dev'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
