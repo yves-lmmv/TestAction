@@ -56,7 +56,9 @@ jobs:
   # This workflow contains a single job called "build"
   call-workflow-passing-data:
     uses: ./.github/workflows/nightbuild_common.yml
-    #secrets: inherit
+    with:
+      config-path: "TEST 1234"
+    secrets: inherit
 
 
   # build:

@@ -8,7 +8,9 @@ env:
 # Controls when the workflow will run 
 on:
   workflow_call:
-
+    config-path:
+            required: true
+            type: string
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   #reusable_workflow_job:
@@ -34,6 +36,7 @@ jobs:
           echo "GITHUB_ENV=$GITHUB_ENV"
           ls -l $GITHUB_ENV
           cat $GITHUB_ENV
+          echo "config-path=$config-path"
           # echo "doAptGet=${{ github.event.inputs.doAptGet || true }}" >> $GITHUB_ENV
           # echo "doCheckout=${{ github.event.inputs.doCheckout || true }}" >> $GITHUB_ENV
           # echo "doBuild=${{ github.event.inputs.doBuild || true }}" >> $GITHUB_ENV
