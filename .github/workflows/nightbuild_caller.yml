@@ -55,7 +55,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   call-workflow-passing-data:
-    uses: nightbuild_common.yml@main
+    uses: .github/workflows/nightbuild_common.yml@main
     secrets: inherit
 
 
