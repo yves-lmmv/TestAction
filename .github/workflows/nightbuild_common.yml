@@ -47,6 +47,7 @@ jobs:
           
           echo "configuration-path=${{ inputs.config_path }}"
           echo "doAptGet=${{ github.event.inputs.doAptGet || true }}" >> $GITHUB_ENV
+          echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
           # echo "doCheckout=${{ github.event.inputs.doCheckout || true }}" >> $GITHUB_ENV
           # echo "doBuild=${{ github.event.inputs.doBuild || true }}" >> $GITHUB_ENV
           # echo "doDebian=${{ github.event.inputs.doDebian || true }}" >> $GITHUB_ENV
