@@ -57,7 +57,7 @@ jobs:
   call-workflow-passing-data:
     uses: ./.github/workflows/nightbuild_common.yml
     with:
-      config-path: "TEST 1234"
+      config-path: TEST_1234
     secrets: inherit
 
 
