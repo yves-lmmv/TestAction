@@ -55,56 +55,25 @@ on:
 jobs:
   # This workflow contains a single job called "build"
 
-  # build:
-  #   runs-on: self-hosted
-  #   steps:
-  #   - name: HERE1
-  #     run: |
-  #         echo "HERE1"
+  build:
+    name: build caller
+    runs-on: self-hosted
+
+    steps:
+    - name: HERE1
+      run: echo "HERE1"
       
-  #   - name: HERE2
-  #     run: |
-  #         echo "HERE2"
-
-  #   steps:
-    #call-workflow-passing-data:
-    build:
-      # run: |
-      #     echo "HERE1"
-
+    - name: HERE2
+      run: |
+          echo "HERE2"
+    - name: ALLO 
       uses: ./.github/workflows/nightbuild_common.yml
       with:
         config_path: TEST_1234
         #env: ${{ github.event.inputs.environment }}
-      secrets: inherit
-    #  -name : "Calling common"
+        secrets: inherit
+      #  -name : "Calling common"
       # call-workflow-passing-data:
 
-  # build:
-  #   # The type of runner that the job will run on
-  #   #runs-on: ubuntu-latest
-  #   runs-on: self-hosted
-  #   timeout-minutes: 140
 
-  #   # Steps represent a sequence of tasks that will be executed as part of the job
-  #   steps:
-  #     # When a schedule (cron) run the action, it didn't have access to the various variable
-  #     # defined above. ex : ${{ github.event.inputs.doCheckout }}
-  #     # so here we export those variable to a new name with the user value if set or a default
-  #     # value if not.
-  #     # The variable will be accessible under ${{ env.VAR_NAME }}"
-  #     # IMPORTANT : ALL default are set to true like the list above
-  #     # the other string variable are empty so this is not a problem
-  #     - name: Export user input default
-  #       id: name
-  #       run: |
-  #         echo "doAptGet=${{ github.event.inputs.doAptGet || true }}" >> $GITHUB_ENV
-  #         echo "doCheckout=${{ github.event.inputs.doCheckout || true }}" >> $GITHUB_ENV
-  #         echo "doBuild=${{ github.event.inputs.doBuild || true }}" >> $GITHUB_ENV
-  #         echo "doDebian=${{ github.event.inputs.doDebian || true }}" >> $GITHUB_ENV
-  #         echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload || true }}" >> $GITHUB_ENV
-  #         echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression || true }}" >> $GITHUB_ENV
-  #         echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload || true }}" >> $GITHUB_ENV
-  #     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      
 
