@@ -68,8 +68,10 @@ jobs:
           echo "HERE2"
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           echo "::set-output name=test_value2::\"ABCDEF\""
+          echo "test_from_githubenv=1234556788" >> $GITHUB_ENV
     outputs:
       config_path: TEST_12345
+      test_from_output: ${{ env.test_from_githubenv }}
 
   show_env_arm:
     runs-on: [self-hosted,  ARM64]
@@ -81,6 +83,7 @@ jobs:
         echo "SHow needs.set_env.outputs.test_value=${{ needs.set_env.outputs.test_value }}"
         echo "SHow needs.set_env.outputs.val_test_value=${{ needs.set_env.outputs.val_test_value }}"
         echo "SHow needs.set_env.outputs=${{ needs.set_env.outputs }}"
+        echo "Show env.test_from_githubenv= ${{ env.test_from_githubenv }}"
         echo 'env = ${{ toJSON(env) }}'
         echo 'needs = ${{ toJSON(needs) }}'
 
