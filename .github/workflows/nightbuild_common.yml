@@ -60,7 +60,7 @@ jobs:
         run: |
           echo "GITHUB_ENV=$GITHUB_ENV"
           ls -l $GITHUB_ENV
-          echo "needs.set_env.outputs.runs_on=${{needs.set_env.outputs.var_runs_on}}"
+          echo "needs.set_env.outputs.runs_on=${{needs.set_env.outputs.runs_on}}"
           echo "configuration-path=${{ inputs.config_path }}"
           echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
           echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
