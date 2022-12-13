@@ -55,7 +55,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
 
-  build:
+  set_env:
     # name: build caller
     runs-on: self-hosted
 
@@ -66,7 +66,18 @@ jobs:
     - name: HERE2
       run: |
           echo "HERE2"
+    outputs:
+      config_path: TEST_12345
+
+  show_env:
+    runs-on: self-hosted
+    needs: [set_env]
+    steps:
+    - name: Show ENV
+      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}
+
   build_post:
+    needs: [set_env]
     name: ALLO 
     uses: ./.github/workflows/nightbuild_common.yml
     with:
