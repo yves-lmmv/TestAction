@@ -72,7 +72,7 @@ jobs:
     with:
       config_path: TEST_1234
       #env: ${{ github.event.inputs.environment }}
-      secrets: inherit
+      #secrets: inherit
 
 
 
