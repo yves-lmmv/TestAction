@@ -56,6 +56,12 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     steps:
+      run: |
+          echo "HERE1"
+      
+      run: |
+          echo "HERE2"
+      
       uses: ./.github/workflows/nightbuild_common.yml
         # with:
         #   config_path: TEST_1234
