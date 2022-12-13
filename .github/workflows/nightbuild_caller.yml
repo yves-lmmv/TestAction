@@ -57,7 +57,7 @@ jobs:
 
   build:
     # name: build caller
-    # runs-on: self-hosted
+    runs-on: self-hosted
 
     steps:
     # - name: HERE1
