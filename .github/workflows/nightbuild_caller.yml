@@ -18,6 +18,14 @@ on:
         description: 'Version tag'
         required: false
         default: ''
+      architecture:
+        description: 'Architecture'
+        required: true
+        default: 'X86' 
+        type: choice
+        options:
+        - X86
+        - ARM64
       doAptGet: 
         description: 'Apt get'
         type: boolean
@@ -75,9 +83,10 @@ jobs:
       config_path: TEST_12345
       test_from_output: ${{ env.test_from_githubenv }}
       running_on: ${{ env.running_on }}
+      runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
 
   show_env_arm:
-    runs-on: ${{ fromJson(needs.set_env.outputs.running_on) }}
+    runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
     #runs-on: [self-hosted,  ARM64]
     needs: [set_env]
     steps:
@@ -107,17 +116,17 @@ jobs:
     - name: Show ENV SCHEDULE
       run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
 
-  # build_post:
-  #   needs: [set_env]
-  #   name: ALLO
-  #   # job calling other workflow can't use steps in them
-  #   uses: ./.github/workflows/nightbuild_common.yml
-  #   with:
-  #     config_path: ${{ needs.set_env.outputs.config_path }}
-  #     architecture: "ARM64"
-  #     #architecture: "[self-hosted,  ARM64]"
-  #     #env: ${{ github.event.inputs.environment }}
-  #     #secrets: inherit
+  build_post:
+    needs: [set_env]
+    name: ALLO
+    # job calling other workflow can't use steps in them
+    uses: ./.github/workflows/nightbuild_common.yml
+    with:
+      config_path: ${{ needs.set_env.outputs.config_path }}
+      architecture: ${{ github.event.inputs.architecture }}
+      #architecture: "[self-hosted,  ARM64]"
+      #env: ${{ github.event.inputs.environment }}
+      #secrets: inherit
 
 
 
