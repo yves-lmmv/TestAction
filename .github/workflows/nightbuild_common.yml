@@ -26,6 +26,36 @@ on:
         required: true
         type: string
         default: '[ "self-hosted", "X64" ]'
+
+      doAptGet:
+        required: true
+        type: boolean
+        default: true
+      doCheckout:
+        required: true
+        type: boolean
+        default: true
+      doBuild:
+        required: true
+        type: boolean
+        default: true
+      doDebian:
+        required: true
+        type: boolean
+        default: true
+      doDebNexusUpload:
+        required: true
+        type: boolean
+        default: true
+      doDebJenkinsUpload:
+        required: true
+        type: boolean
+        default: true
+      doJenkinsRegression:
+        required: true
+        type: boolean
+        default: true
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   #reusable_workflow_job:
