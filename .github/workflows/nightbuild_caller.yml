@@ -93,20 +93,20 @@ jobs:
       running_on: ${{ env.running_on }}
       runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
 
-  show_env_arm:
-    runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
-    #runs-on: [self-hosted,  ARM64]
-    needs: [set_env]
-    steps:
-    - name: Show ENV ARM
-      run: | 
-        echo "SHow env ARM64 ${{ needs.set_env.outputs.config_path }}"
-        echo "SHow needs.set_env.outputs.test_value=${{ needs.set_env.outputs.test_value }}"
-        echo "SHow needs.set_env.outputs.val_test_value=${{ needs.set_env.outputs.val_test_value }}"
-        echo "SHow needs.set_env.outputs=${{ needs.set_env.outputs }}"
-        echo "Show env.test_from_githubenv= ${{ env.test_from_githubenv }}"
-        echo 'env = ${{ toJSON(env) }}'
-        echo 'needs = ${{ toJSON(needs) }}'
+  # show_env_arm:
+  #   runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
+  #   #runs-on: [self-hosted,  ARM64]
+  #   needs: [set_env]
+  #   steps:
+  #   - name: Show ENV ARM
+  #     run: | 
+  #       echo "SHow env ARM64 ${{ needs.set_env.outputs.config_path }}"
+  #       echo "SHow needs.set_env.outputs.test_value=${{ needs.set_env.outputs.test_value }}"
+  #       echo "SHow needs.set_env.outputs.val_test_value=${{ needs.set_env.outputs.val_test_value }}"
+  #       echo "SHow needs.set_env.outputs=${{ needs.set_env.outputs }}"
+  #       echo "Show env.test_from_githubenv= ${{ env.test_from_githubenv }}"
+  #       echo 'env = ${{ toJSON(env) }}'
+  #       echo 'needs = ${{ toJSON(needs) }}'
 
 
   # show_env:
