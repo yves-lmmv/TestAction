@@ -54,18 +54,20 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  
-  build:
-    runs-on: self-hosted
-    steps:
-    - name: HERE1
-      run: |
-          echo "HERE1"
+
+  # build:
+  #   runs-on: self-hosted
+  #   steps:
+  #   - name: HERE1
+  #     run: |
+  #         echo "HERE1"
       
-    - name: HERE2
-      run: |
-          echo "HERE2"
-    - name: Calling  
+  #   - name: HERE2
+  #     run: |
+  #         echo "HERE2"
+
+  #   steps:
+    call-workflow-passing-data:  
       uses: ./.github/workflows/nightbuild_common.yml
         # with:
         #   config_path: TEST_1234
