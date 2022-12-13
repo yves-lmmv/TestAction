@@ -70,7 +70,7 @@ jobs:
       config_path: TEST_12345
 
   show_env:
-    runs-on: self-hosted
+    runs-on: [self-hosted,  X64]
     needs: [set_env]
     steps:
     - name: Show ENV
