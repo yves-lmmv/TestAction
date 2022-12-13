@@ -78,10 +78,11 @@ jobs:
 
   build_post:
     needs: [set_env]
-    name: ALLO 
+    name: ALLO
+    # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
-      config_path: TEST_1234
+      config_path: ${{ needs.set_env.outputs.config_path }}
       #env: ${{ github.event.inputs.environment }}
       #secrets: inherit
 
