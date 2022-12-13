@@ -76,7 +76,7 @@ jobs:
       running_on: ${{ env.running_on }}
 
   show_env_arm:
-    runs-on: ${{ needs.set_env.outputs.running_on }}
+    runs-on: ${{ fromJson(needs.set_env.outputs.running_on) }}
     #runs-on: [self-hosted,  ARM64]
     needs: [set_env]
     steps:
