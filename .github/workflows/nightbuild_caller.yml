@@ -21,10 +21,10 @@ on:
       architecture:
         description: 'Architecture'
         required: true
-        default: 'X86' 
+        default: 'X64' 
         type: choice
         options:
-        - X86
+        - X64
         - ARM64
       buildType:
         description: 'Build Type'
