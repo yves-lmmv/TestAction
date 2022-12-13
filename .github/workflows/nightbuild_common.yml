@@ -18,6 +18,10 @@ on:
         required: true
         type: string
         default: 'dev'
+      architecture:
+        required: true
+        type: string
+        default: 'NOT_SET'
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   #reusable_workflow_job:
@@ -25,7 +29,7 @@ jobs:
   build:
     # The type of runner that the job will run on
     #runs-on: ubuntu-latest
-    runs-on: [self-hosted,  X64]
+    runs-on: ${{ inputs.architecture }}
     timeout-minutes: 140
 
     # Steps represent a sequence of tasks that will be executed as part of the job
