@@ -76,6 +76,14 @@ jobs:
     - name: Show ENV
       run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
 
+  show1_env:
+    runs-on: self-hosted
+    needs: [set_env]
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+    - name: Show ENV SCHEDULE
+      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
+
   build_post:
     needs: [set_env]
     name: ALLO
