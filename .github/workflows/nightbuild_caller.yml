@@ -81,6 +81,7 @@ jobs:
         echo "SHow needs.set_env.outputs.val_test_value=${{ needs.set_env.outputs.val_test_value }}"
         echo "SHow needs.set_env.outputs=${{ needs.set_env.outputs }}"
         echo 'github.env = ${{ toJSON(github.env) }}'
+        cat ${{ toJSON(github.env) }}
 
   show_env:
     runs-on: [self-hosted,  X64]
