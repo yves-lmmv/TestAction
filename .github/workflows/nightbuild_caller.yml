@@ -69,12 +69,19 @@ jobs:
     outputs:
       config_path: TEST_12345
 
+  show_env_arm:
+    runs-on: [self-hosted,  ARM64]
+    needs: [set_env]
+    steps:
+    - name: Show ENV ARM
+      run: echo "SHow env ARM64 ${{ needs.set_env.outputs.config_path }}"
+
   show_env:
     runs-on: [self-hosted,  X64]
     needs: [set_env]
     steps:
-    - name: Show ENV
-      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
+    - name: Show ENV X64
+      run: echo "SHow env X64 ${{ needs.set_env.outputs.config_path }}"
 
   show1_env:
     runs-on: self-hosted
