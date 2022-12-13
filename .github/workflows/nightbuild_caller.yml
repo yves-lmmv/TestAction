@@ -69,12 +69,15 @@ jobs:
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           echo "::set-output name=test_value2::\"ABCDEF\""
           echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
+          echo "running_on=[self-hosted,  ARM64]" >> $GITHUB_ENV
     outputs:
       config_path: TEST_12345
       test_from_output: ${{ env.test_from_githubenv }}
+      running_on: ${{ env.running_on }}
 
   show_env_arm:
-    runs-on: [self-hosted,  ARM64]
+    runs-on: ${{ needs.set_env.outputs.running_on }}
+    #runs-on: [self-hosted,  ARM64]
     needs: [set_env]
     steps:
     - name: Show ENV ARM
