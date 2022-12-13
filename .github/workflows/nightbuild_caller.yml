@@ -136,7 +136,7 @@ jobs:
       runner_label: '[ "self-hosted", "ARM64" ]'
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
-      secrets: inherit
+      #secrets: inherit
 
   NightBuildX64:
     needs: [set_env]
@@ -150,7 +150,7 @@ jobs:
       runner_label: '[ "self-hosted", "X64" ]'
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
-      secrets: inherit
+      #secrets: inherit
 
   # UserBuild:
   #   needs: [set_env]
