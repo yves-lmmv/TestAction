@@ -74,7 +74,7 @@ jobs:
     needs: [set_env]
     steps:
     - name: Show ENV
-      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}
+      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
 
   build_post:
     needs: [set_env]
