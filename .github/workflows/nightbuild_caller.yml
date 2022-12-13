@@ -56,13 +56,15 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     steps:
+      - name: HERE1
       run: |
           echo "HERE1"
       
+      - name: HERE2
       run: |
           echo "HERE2"
       
-      uses: ./.github/workflows/nightbuild_common.yml
+      #uses: ./.github/workflows/nightbuild_common.yml
         # with:
         #   config_path: TEST_1234
         #   #env: ${{ github.event.inputs.environment }}
