@@ -21,15 +21,15 @@ on:
       doAptGet: 
         description: 'Apt get'
         type: boolean
-        default: 'true'
+        default: true
       doCheckout: 
         description: 'code Checkout'
         type: boolean
-        default: 'true'
+        default: true
       doBuild: 
         description: 'Build'
         type: boolean
-        default: 'true'
+        default: true
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
@@ -37,30 +37,32 @@ on:
       doDebian: 
         description: 'Generate Debian'
         type: boolean
-        default: 'true'
+        default: true
       doDebNexusUpload: 
         description: 'Send the .deb to Nexus'
         type: boolean
-        default: 'true'
+        default: true
       doDebJenkinsUpload: 
         description: 'Send the .deb to Jenkins'
         type: boolean
-        default: 'true'
+        default: true
       doJenkinsRegression: 
         description: 'Start regression on Jenkins'
         type: boolean
-        default: 'true'
+        default: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
+  
   build:
+    runs-on: self-hosted
     steps:
-      - name: HERE1
+    - name: HERE1
       run: |
           echo "HERE1"
       
-      - name: HERE2
+    - name: HERE2
       run: |
           echo "HERE2"
       
