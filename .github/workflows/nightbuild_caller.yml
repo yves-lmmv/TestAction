@@ -68,7 +68,7 @@ jobs:
           echo "HERE2"
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           echo "::set-output name=test_value2::\"ABCDEF\""
-          echo "test_from_githubenv=1234556788" >> $GITHUB_ENV
+          echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
     outputs:
       config_path: TEST_12345
       test_from_output: ${{ env.test_from_githubenv }}
