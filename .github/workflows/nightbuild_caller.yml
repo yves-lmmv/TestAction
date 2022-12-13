@@ -67,7 +67,11 @@ jobs:
   #         echo "HERE2"
 
   #   steps:
-    call-workflow-passing-data:  
+    #call-workflow-passing-data:
+    build:
+      # run: |
+      #     echo "HERE1"
+
       uses: ./.github/workflows/nightbuild_common.yml
       with:
         config_path: TEST_1234
