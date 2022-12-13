@@ -26,18 +26,26 @@ on:
         options:
         - X86
         - ARM64
-      doAptGet: 
-        description: 'Apt get'
-        type: boolean
-        default: true
-      doCheckout: 
-        description: 'code Checkout'
-        type: boolean
-        default: true
-      doBuild: 
-        description: 'Build'
-        type: boolean
-        default: true
+      buildType:
+        description: 'Build Type'
+        required: true
+        default: 'Clean Build' 
+        type: choice
+        options:
+        - Clean Build
+        - Rebuild
+      # doAptGet: 
+      #   description: 'Apt get'
+      #   type: boolean
+      #   default: true
+      # doCheckout: 
+      #   description: 'code Checkout'
+      #   type: boolean
+      #   default: true
+      # doBuild: 
+      #   description: 'Build'
+      #   type: boolean
+      #   default: true
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
