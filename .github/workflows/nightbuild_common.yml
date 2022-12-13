@@ -48,6 +48,12 @@ on:
       doJenkinsRegression:
         type: boolean
         default: true
+      gitRev:
+        type: string
+        default: ""
+      buildOptions:
+        type: string
+        default: "-v"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -85,29 +91,28 @@ jobs:
         #   configuration-path: ${{ inputs.config-path }}
         id: name
         run: |
-          echo "GITHUB_ENV=$GITHUB_ENV"
-          ls -l $GITHUB_ENV
-          echo "needs.set_env_common.outputs.runs_on=${{needs.set_env_common.outputs.runs_on}}"
-          echo "configuration-path=${{ inputs.config_path }}"
-          echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
-          echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
-          echo "doCheckout=${{ github.event.inputs.doCheckout }}" >> $GITHUB_ENV
-          echo "doBuild=${{ github.event.inputs.doBuild }}" >> $GITHUB_ENV
-          echo "doDebian=${{ github.event.inputs.doDebian }}" >> $GITHUB_ENV
-          echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload }}" >> $GITHUB_ENV
-          echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression }}" >> $GITHUB_ENV
-          echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload }}" >> $GITHUB_ENV
-
+          # echo "GITHUB_ENV=$GITHUB_ENV"
+          # ls -l $GITHUB_ENV
+          # echo "needs.set_env_common.outputs.runs_on=${{needs.set_env_common.outputs.runs_on}}"
+          # echo "configuration-path=${{ inputs.config_path }}"
+          # echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
+          # echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
+          # echo "doCheckout=${{ github.event.inputs.doCheckout }}" >> $GITHUB_ENV
+          # echo "doBuild=${{ github.event.inputs.doBuild }}" >> $GITHUB_ENV
+          # echo "doDebian=${{ github.event.inputs.doDebian }}" >> $GITHUB_ENV
+          # echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload }}" >> $GITHUB_ENV
+          # echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression }}" >> $GITHUB_ENV
+          # echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload }}" >> $GITHUB_ENV
           cat $GITHUB_ENV
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Check out repo
         run: | 
-          if [ "${{ env.doCheckout }}" == "true" ]; then
+          if [ "${{ inputs.doCheckout }}" == "true" ]; then
             echo "checkout"
             # rm Ltrx-ToolsAndDoc -rf
             # git clone --recursive git@github.com:likeMindedLabs/Ltrx-ToolsAndDoc.git
             # cd Ltrx-ToolsAndDoc
-            # GIT_REV="${{ github.event.inputs.gitRev }}"
+            # GIT_REV="${{ inputs.gitRev }}"
             # if [ "${GIT_REV}" != "" ]; then
             #   echo "Checkout and update to rev: ${GIT_REV}"
             #   git checkout "${GIT_REV}"
@@ -125,7 +130,7 @@ jobs:
           fi
       - name: running script setup_ubuntu.sh (apt get package)
         run: |
-          if [ "${{ env.doAptGet }}" == "true" ]; then
+          if [ "${{ inputs.doAptGet }}" == "true" ]; then
             # sudo ./Ltrx-ToolsAndDoc/scripts/setup_ubuntu.sh
             echo "scripts/setup_ubuntu.sh (apt get)"
           else
@@ -135,7 +140,7 @@ jobs:
       - name: Building LTRX
         run: |
           echo "SECRET=${{ secrets.REPO_USERNAME }}"
-          if [ "${{ env.doBuild }}" == "true" ]; then
+          if [ "${{ inputs.doBuild }}" == "true" ]; then
             # export OPTBASE_OVERRIDE=/tmp/opt
             # cd Ltrx-ToolsAndDoc
             # BUILD_OPTIONS="${{ github.event.inputs.buildOptions }}"
@@ -154,11 +159,11 @@ jobs:
           
       - name: Release .deb LTRX
         run: |
-          if [ "${{ env.doDebian }}" == "true" ]; then
+          if [ "${{ inputs.doDebian }}" == "true" ]; then
             echo "Release .deb"
             # export OPTBASE_OVERRIDE=/tmp/opt
             # cd Ltrx-ToolsAndDoc
-            # DEB_NAME="${{ github.event.inputs.debVersion }}"
+            # DEB_NAME="${{ inputs.debVersion }}"
             # if [ "${DEB_NAME}" == "" ]; then
             #   DEB_NAME=$(./scripts/generate_build_name.sh)
             # fi
@@ -172,8 +177,8 @@ jobs:
 
       - name: Copy .deb LTRX to permanent storage
         run: |
-          if [ "${{ env.doDebian }}" == "true" ] && 
-          [ "${{ env.doDebNexusUpload }}" == "true" ]; 
+          if [ "${{ inputs.doDebian }}" == "true" ] && 
+          [ "${{ inputs.doDebNexusUpload }}" == "true" ]; 
           then
             echo "Copy .deb"
             # export OPTBASE_OVERRIDE=/tmp/opt
@@ -182,7 +187,7 @@ jobs:
             # echo "copying ${DEB_LOCATION}"
             # # is this a nightbuild or normal build ?
             # PATH_END="/"
-            # if [ "${{ github.event.inputs.debVersion }}" == "" ]; then
+            # if [ "${{ inputs.debVersion }}" == "" ]; then
             #   PATH_END="/Nightbuild/"
             # fi
             # #https://nexus.vantrix.tv/repository/deb/x86_64/ltrx/${PATH_END}
@@ -196,8 +201,8 @@ jobs:
 
       - name: Copy .deb LTRX Jenkins
         run: |
-          if [ "${{ env.doDebian }}" == "true" ] && 
-          [ "${{ env.doDebJenkinsUpload }}" == "true" ]; 
+          if [ "${{ inputs.doDebian }}" == "true" ] && 
+          [ "${{ inputs.doDebJenkinsUpload }}" == "true" ]; 
           then
             echo "Deb jenkins upload"
             # cd Ltrx-ToolsAndDoc
@@ -238,9 +243,9 @@ jobs:
 
       - name: Start Jenkins regression
         run: |
-          if [ "${{ env.doDebian }}" == "true" ] && 
-             [ "${{ env.doDebJenkinsUpload }}" == "true" ] && 
-             [ "${{ env.doJenkinsRegression }}" == "true" ]; 
+          if [ "${{ inputs.doDebian }}" == "true" ] && 
+             [ "${{ inputs.doDebJenkinsUpload }}" == "true" ] && 
+             [ "${{ inputs.doJenkinsRegression }}" == "true" ]; 
           then
             echo "Start Jenkins regression"
             # cd Ltrx-ToolsAndDoc

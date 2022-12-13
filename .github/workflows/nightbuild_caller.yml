@@ -109,20 +109,20 @@ jobs:
         echo 'needs = ${{ toJSON(needs) }}'
 
 
-  show_env:
-    runs-on: [self-hosted,  X64]
-    needs: [set_env]
-    steps:
-    - name: Show ENV X64
-      run: echo "SHow env X64 ${{ needs.set_env.outputs.config_path }}"
+  # show_env:
+  #   runs-on: [self-hosted,  X64]
+  #   needs: [set_env]
+  #   steps:
+  #   - name: Show ENV X64
+  #     run: echo "SHow env X64 ${{ needs.set_env.outputs.config_path }}"
 
-  show1_env:
-    runs-on: self-hosted
-    needs: [set_env]
-    if: ${{ github.event_name == 'schedule' }}
-    steps:
-    - name: Show ENV SCHEDULE
-      run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
+  # show1_env:
+  #   runs-on: self-hosted
+  #   needs: [set_env]
+  #   if: ${{ github.event_name == 'schedule' }}
+  #   steps:
+  #   - name: Show ENV SCHEDULE
+  #     run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
 
   NightBuildARM64:
     needs: [set_env]
@@ -136,7 +136,7 @@ jobs:
       runner_label: '[ "self-hosted", "ARM64" ]'
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
-      #secrets: inherit
+      secrets: inherit
 
   NightBuildX64:
     needs: [set_env]
@@ -150,7 +150,7 @@ jobs:
       runner_label: '[ "self-hosted", "X64" ]'
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
-      #secrets: inherit
+      secrets: inherit
 
   # UserBuild:
   #   needs: [set_env]
