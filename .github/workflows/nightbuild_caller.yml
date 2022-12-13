@@ -67,6 +67,7 @@ jobs:
       run: |
           echo "HERE2"
           echo "test_value=ABC" >> $GITHUB_OUTPUT
+          echo "::set-output name=test_value2::\"ABCDEF\"
     outputs:
       config_path: TEST_12345
 
