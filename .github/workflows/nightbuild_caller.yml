@@ -69,10 +69,10 @@ jobs:
   #   steps:
     call-workflow-passing-data:  
       uses: ./.github/workflows/nightbuild_common.yml
-        # with:
-        #   config_path: TEST_1234
-        #   #env: ${{ github.event.inputs.environment }}
-        # secrets: inherit
+      with:
+        config_path: TEST_1234
+        #env: ${{ github.event.inputs.environment }}
+      secrets: inherit
     #  -name : "Calling common"
       # call-workflow-passing-data:
 
