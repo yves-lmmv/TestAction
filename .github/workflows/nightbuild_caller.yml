@@ -54,12 +54,16 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
-  call-workflow-passing-data:
-    uses: ./.github/workflows/nightbuild_common.yml
-    with:
-      config_path: TEST_1234
-      #env: ${{ github.event.inputs.environment }}
-    secrets: inherit
+  build:
+    steps:
+
+     - name : "Calling common"
+      call-workflow-passing-data:
+        uses: ./.github/workflows/nightbuild_common.yml
+        with:
+          config_path: TEST_1234
+          #env: ${{ github.event.inputs.environment }}
+        secrets: inherit
 
 
   # build:
