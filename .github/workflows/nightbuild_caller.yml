@@ -93,6 +93,7 @@ jobs:
 
   build_post:
     needs: [set_env]
+    runs-on: [self-hosted,  X64]
     name: ALLO
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
