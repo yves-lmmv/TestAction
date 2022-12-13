@@ -88,11 +88,6 @@ jobs:
           else
             echo "Skip scripts/setup_ubuntu.sh (apt get)"
           fi
-      ## This gitaction didn't seems to work.. lots of error when fetching some submodules. This is why I do it manually above
-        # uses: actions/checkout@v2
-        # with:
-        #   submodules: 'true'
-        #   fetch-depth: '0'
 
       - name: Building LTRX
         run: |
