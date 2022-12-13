@@ -91,6 +91,7 @@ jobs:
 
       - name: Building LTRX
         run: |
+          echo "SECRET=${{ secrets.REPO_USERNAME }}"
           if [ "${{ env.doBuild }}" == "true" ]; then
             # export OPTBASE_OVERRIDE=/tmp/opt
             # cd Ltrx-ToolsAndDoc
