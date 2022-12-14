@@ -48,6 +48,7 @@ on:
         - 'Debian, Nexus, Jenkins'
         - 'Debian, Nexus'
         - 'Debian'
+        - 'Nothing'
 
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
@@ -68,7 +69,7 @@ jobs:
     - name: Setup Env
       run: |
           echo "Creating proper flags based on user choice"
-          doAptGet="true"
+          doAptGet='true'
           doCheckout='true'
           doClean='true'
           doBuild='true'
@@ -79,20 +80,57 @@ jobs:
           gitRev=''
           buildOptions='-v'
           buildType="${{ github.event.inputs.buildType }}"
+          postBuild="${{ github.event.inputs.postBuild }}"
+
+          echo "Parsing buildType option"
           if [[ "${buildType}" = "Checkout, Clean, Build" ]]; then
             echo "Checkout, Clean, Build..."
           elif [[ "${buildType}" = "Clean, Build" ]]; then
             echo "Clean, Build..."
-            doAptGet="false"
+            doAptGet='false'
             doCheckout='false'
           elif [[ "${buildType}" = "Build" ]]; then
             echo "Build..."
-            doAptGet="false"
+            doAptGet='false'
             doCheckout='false'
+            doClean='false'
+          elif [[ "${buildType}" = "Nothing" ]]; then
+            echo "Nothing..."
+            doAptGet='false'
+            doCheckout='false'
+            doClean='false'
+            doBuild='false'          
           else
             echo "buildType Parser not aligned with options name"
             return 1
           fi
+
+          echo "Parsing postBuild option"
+          if [[ "${postBuild}" = "Debian, Nexus, Jenkins, Tests" ]]; then
+            echo "Debian, Nexus, Jenkins, Tests..."
+          elif [[ "${postBuild}" = "Debian, Nexus, Jenkins" ]]; then
+            echo "Debian, Nexus, Jenkins..."
+            doJenkinsRegression='false'
+          elif [[ "${postBuild}" = "Debian, Nexus" ]]; then
+            echo "Debian, Nexus..."
+            doDebJenkinsUpload='false'
+            doJenkinsRegression='false'
+          elif [[ "${postBuild}" = "Debian" ]]; then
+            echo "Debian..."
+            doDebJenkinsUpload='false'
+            doJenkinsRegression='false'
+            doDebNexusUpload='false'            
+          elif [[ "${postBuild}" = "Nothing" ]]; then
+            echo "Nothing..."
+            doDebian='false'
+            doDebJenkinsUpload='false'
+            doJenkinsRegression='false'
+            doDebNexusUpload='false' 
+          else
+            echo "postBuild Parser not aligned with options name"
+            return 1
+          fi
+          
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           #echo "::set-output name=test_value2::\"ABCDEF\""
           echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
