@@ -29,11 +29,22 @@ on:
       buildType:
         description: 'Build Type'
         required: true
-        default: 'Clean Build' 
+        default: 'Checkout, Clean, Build' 
         type: choice
         options:
-        - Clean Build
-        - Rebuild
+        - 'Checkout, Clean, Build'
+        - 'Clean, Build'
+        - 'Build'
+      postBuild:
+        description: 'Post Build action. Debian/tgz generation, Nexus upload, Jenkins upload, Jenkins testing'
+        required: true
+        default: 'Debian, Nexus, Jenkins, Tests' 
+        type: choice
+        options:
+        - 'Debian, Nexus, Jenkins, Tests'
+        - 'Debian, Nexus, Jenkins'
+        - 'Debian, Nexus'
+        - 'Debian'
       # doAptGet: 
       #   description: 'Apt get'
       #   type: boolean
@@ -50,22 +61,22 @@ on:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
         default: '-v'
-      doDebian: 
-        description: 'Generate Debian'
-        type: boolean
-        default: true
-      doDebNexusUpload: 
-        description: 'Send the .deb to Nexus'
-        type: boolean
-        default: true
-      doDebJenkinsUpload: 
-        description: 'Send the .deb to Jenkins'
-        type: boolean
-        default: true
-      doJenkinsRegression: 
-        description: 'Start regression on Jenkins'
-        type: boolean
-        default: true
+      # doDebian: 
+      #   description: 'Generate Debian'
+      #   type: boolean
+      #   default: true
+      # doDebNexusUpload: 
+      #   description: 'Send the .deb to Nexus'
+      #   type: boolean
+      #   default: true
+      # doDebJenkinsUpload: 
+      #   description: 'Send the .deb to Jenkins'
+      #   type: boolean
+      #   default: true
+      # doJenkinsRegression: 
+      #   description: 'Start regression on Jenkins'
+      #   type: boolean
+      #   default: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -73,6 +84,7 @@ jobs:
 
   set_env:
     # name: build caller
+    if: ${{ github.event_name != 'schedule' }}
     runs-on: self-hosted
 
     steps:
@@ -125,13 +137,11 @@ jobs:
   #     run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
 
   NightBuildARM64:
-    needs: [set_env]
     name: NightBuildARM64
     #if: ${{ github.event_name == 'schedule' }}
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
-      config_path: ${{ needs.set_env.outputs.config_path }}
       architecture: ARM64
       runner_label: '[ "self-hosted", "ARM64" ]'
       doDebian: false
@@ -140,13 +150,11 @@ jobs:
       #secrets: inherit
 
   NightBuildX64:
-    needs: [set_env]
     name: NightBuildX64
     #if: ${{ github.event_name == 'schedule' }}
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
-      config_path: ${{ needs.set_env.outputs.config_path }}
       architecture: X64
       runner_label: '[ "self-hosted", "X64" ]'
       #architecture: "[self-hosted,  ARM64]"

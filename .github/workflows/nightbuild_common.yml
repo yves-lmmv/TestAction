@@ -33,6 +33,9 @@ on:
       doCheckout:
         type: boolean
         default: true
+      doClean:
+        type: boolean
+        default: true
       doBuild:
         type: boolean
         default: true
@@ -70,12 +73,8 @@ jobs:
 
   build:
     # The type of runner that the job will run on
-    #runs-on: ubuntu-latest
-    #needs: set_env_common
     runs-on: ${{ fromJson(inputs.runner_label) }}
-    #${{needs.set_env.outputs.runs_on}}
-    #runs-on: ${{ inputs.architecture }}
-    timeout-minutes: 1
+    timeout-minutes: 110
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -94,7 +93,6 @@ jobs:
           # echo "GITHUB_ENV=$GITHUB_ENV"
           # ls -l $GITHUB_ENV
           # echo "needs.set_env_common.outputs.runs_on=${{needs.set_env_common.outputs.runs_on}}"
-          # echo "configuration-path=${{ inputs.config_path }}"
           # echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
           # echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
           # echo "doCheckout=${{ github.event.inputs.doCheckout }}" >> $GITHUB_ENV
@@ -106,81 +104,65 @@ jobs:
           cat $GITHUB_ENV
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Check out repo
+        if: ${{ inputs.doCheckout }}
         run: | 
-          if [ "${{ inputs.doCheckout }}" == "true" ]; then
-            echo "checkout"
-            # rm Ltrx-ToolsAndDoc -rf
-            # git clone --recursive git@github.com:likeMindedLabs/Ltrx-ToolsAndDoc.git
-            # cd Ltrx-ToolsAndDoc
-            # GIT_REV="${{ inputs.gitRev }}"
-            # if [ "${GIT_REV}" != "" ]; then
-            #   echo "Checkout and update to rev: ${GIT_REV}"
-            #   git checkout "${GIT_REV}"
-            #   git submodule update
-            #   ## if a rev or tag is specified, this means it is not a nightbuild (HEAD)
-            #   ## so we need to set all the meson .wrap file to point to the proper version
-            #   ## of all the current submodules
-            #   echo "Setting all Meson .wrap to current submodules"
-            #   # we skip the step that check if each submodule is up to date vs HEAD.
-            #   # we fix all wrap file to the submodule version in the tree
-            #   ./scripts/git_check.sh --skip-submodules --fix-wrap
-            # fi
-          else
-            echo "skip checkout"
-          fi
+          echo "checkout"
+          # rm Ltrx-ToolsAndDoc -rf
+          # git clone --recursive git@github.com:likeMindedLabs/Ltrx-ToolsAndDoc.git
+          # cd Ltrx-ToolsAndDoc
+          # GIT_REV="${{ inputs.gitRev }}"
+          # if [ "${GIT_REV}" != "" ]; then
+          #   echo "Checkout and update to rev: ${GIT_REV}"
+          #   git checkout "${GIT_REV}"
+          #   git submodule update
+          #   ## if a rev or tag is specified, this means it is not a nightbuild (HEAD)
+          #   ## so we need to set all the meson .wrap file to point to the proper version
+          #   ## of all the current submodules
+          #   echo "Setting all Meson .wrap to current submodules"
+          #   # we skip the step that check if each submodule is up to date vs HEAD.
+          #   # we fix all wrap file to the submodule version in the tree
+          #   ./scripts/git_check.sh --skip-submodules --fix-wrap
+          # fi
+
       - name: running script setup_ubuntu.sh (apt get package)
+        if: ${{ inputs.doAptGet }}
         run: |
-          if [ "${{ inputs.doAptGet }}" == "true" ]; then
-            # sudo ./Ltrx-ToolsAndDoc/scripts/setup_ubuntu.sh
-            echo "scripts/setup_ubuntu.sh (apt get)"
-          else
-            echo "Skip scripts/setup_ubuntu.sh (apt get)"
-          fi
+          # sudo ./Ltrx-ToolsAndDoc/scripts/setup_ubuntu.sh
+
+      - name: Clean previous build
+        if: ${{ inputs.doClean }}
+        run: |
+          # rm /tmp/opt -rf
 
       - name: Building LTRX
+        if: ${{ inputs.doBuild }}
         run: |
-          echo "SECRET=${{ secrets.REPO_USERNAME }}"
-          if [ "${{ inputs.doBuild }}" == "true" ]; then
-            # export OPTBASE_OVERRIDE=/tmp/opt
-            # cd Ltrx-ToolsAndDoc
-            # BUILD_OPTIONS="${{ github.event.inputs.buildOptions }}"
-            # if [ "${BUILD_OPTIONS}" == "-v" ] || [ "${BUILD_OPTIONS}" == "" ]; then
-            #   echo "Cleaning all previous build since no options set to build"
-            #   rm /tmp/opt -rf
-            #   echo "Doing full build from scratch"
-            # fi
-            # export NEXUS_USER=${{ secrets.REPO_USERNAME }}
-            # export NEXUS_PASSWORD=${{ secrets.REPO_PASSWORD }}
-            # ./scripts/buildall.sh ${BUILD_OPTIONS}
-            echo "Build LTRX"
-          else
-            echo "skip ALL the build"
-          fi
+          # export OPTBASE_OVERRIDE=/tmp/opt
+          # cd Ltrx-ToolsAndDoc
+          # BUILD_OPTIONS="${{ github.event.inputs.buildOptions }}"
+          # export NEXUS_USER=${{ secrets.REPO_USERNAME }}
+          # export NEXUS_PASSWORD=${{ secrets.REPO_PASSWORD }}
+          # ./scripts/buildall.sh ${BUILD_OPTIONS}
+          echo "Build LTRX"
           
       - name: Release .deb LTRX
-        run: |
-          if [ "${{ inputs.doDebian }}" == "true" ]; then
-            echo "Release .deb"
-            # export OPTBASE_OVERRIDE=/tmp/opt
-            # cd Ltrx-ToolsAndDoc
-            # DEB_NAME="${{ inputs.debVersion }}"
-            # if [ "${DEB_NAME}" == "" ]; then
-            #   DEB_NAME=$(./scripts/generate_build_name.sh)
-            # fi
-            # echo "Cleaning all previous distro/ltrx"
-            # rm /tmp/distro/ltrx -rf
-            # echo "Building debian version=${DEB_NAME}"
-            # ./scripts/release_ltrx_deb.sh --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
-          else
-            echo "Skip Release .deb"
-          fi
-
-      - name: Copy .deb LTRX to permanent storage
         if: ${{ inputs.doDebian }}
         run: |
-          if [ "${{ inputs.doDebian }}" == "true" ] && 
-          [ "${{ inputs.doDebNexusUpload }}" == "true" ]; 
-          then
+          echo "Release .deb"
+          # export OPTBASE_OVERRIDE=/tmp/opt
+          # cd Ltrx-ToolsAndDoc
+          # DEB_NAME="${{ inputs.debVersion }}"
+          # if [ "${DEB_NAME}" == "" ]; then
+          #   DEB_NAME=$(./scripts/generate_build_name.sh)
+          # fi
+          # echo "Cleaning all previous distro/ltrx"
+          # rm /tmp/distro/ltrx -rf
+          # echo "Building debian version=${DEB_NAME}"
+          # ./scripts/release_ltrx_deb.sh --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
+
+      - name: Copy .deb LTRX to permanent storage
+        if: ${{ inputs.doDebNexusUpload }}
+        run: |
             echo "Copy .deb"
             # export OPTBASE_OVERRIDE=/tmp/opt
             # cd Ltrx-ToolsAndDoc
@@ -196,15 +178,10 @@ jobs:
             # cp "${DEB_LOCATION}" .
             # DEB_FILE=$(basename ${DEB_LOCATION})
             # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${DEB_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${DEB_FILE}"
-          else
-            echo "Skip copy .deb"
-          fi
 
       - name: Copy .deb LTRX Jenkins
+        if: ${{ inputs.doDebJenkinsUpload }}
         run: |
-          if [ "${{ inputs.doDebian }}" == "true" ] && 
-          [ "${{ inputs.doDebJenkinsUpload }}" == "true" ]; 
-          then
             echo "Deb jenkins upload"
             # cd Ltrx-ToolsAndDoc
             # USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
@@ -237,17 +214,10 @@ jobs:
 
             # echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
             # ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
-            
-          else
-            echo "Skip deb jenkins upload"
-          fi
 
       - name: Start Jenkins regression
+        if: ${{ inputs.doJenkinsRegression }}
         run: |
-          if [ "${{ inputs.doDebian }}" == "true" ] && 
-             [ "${{ inputs.doDebJenkinsUpload }}" == "true" ] && 
-             [ "${{ inputs.doJenkinsRegression }}" == "true" ]; 
-          then
             echo "Start Jenkins regression"
             # cd Ltrx-ToolsAndDoc
             # USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
@@ -307,7 +277,3 @@ jobs:
 
             # echo "Test Started on Jenkins. Go see it at ${{env.JenkinsUrl}}/job/Test_NightBuild"
             # echo "Done"
-
-          else
-            echo "Skip Start Jenkins regression"
-          fi
