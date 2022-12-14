@@ -88,23 +88,31 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: HERE1
-      run: echo "HERE1"
-      
-    - name: HERE2
+  
+    - name: Setup Env
       run: |
           echo "HERE2"
+
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           #echo "::set-output name=test_value2::\"ABCDEF\""
           echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
           echo "running_on=[\"self-hosted\",  \"ARM64\"]" >> $GITHUB_ENV
           echo "showing env.test_from_githubenv ${{ env.test_from_githubenv }}"
     outputs:
-      config_path: TEST_12345
-      test_from_output: ${{ env.test_from_githubenv }}
-      running_on: ${{ env.running_on }}
-      runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
 
+      test_from_output: ${{ env.test_from_githubenv }}
+      # running_on: ${{ env.running_on }}
+      runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
+      doAptGet: 'true'
+      doCheckout: 'true'
+      doClean: 'true'
+      doBuild: 'true'
+      doDebian: 'true'
+      doDebNexusUpload: 'true'
+      doDebJenkinsUpload: 'true'
+      doJenkinsRegression: 'true'
+      gitRev: ''
+      buildOptions: '-v'
   # show_env_arm:
   #   runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
   #   #runs-on: [self-hosted,  ARM64]
@@ -138,7 +146,7 @@ jobs:
 
   NightBuildARM64:
     name: NightBuildARM64
-    #if: ${{ github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'schedule' }}
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
@@ -151,7 +159,7 @@ jobs:
 
   NightBuildX64:
     name: NightBuildX64
-    #if: ${{ github.event_name == 'schedule' }}
+    if: ${{ github.event_name == 'schedule' }}
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
@@ -161,18 +169,19 @@ jobs:
       #env: ${{ github.event.inputs.environment }}
       #secrets: inherit
 
-  # UserBuild:
-  #   needs: [set_env]
-  #   name: ALLO
-  #   if: ${{ github.event_name != 'schedule' }}
-  #   # job calling other workflow can't use steps in them
-  #   uses: ./.github/workflows/nightbuild_common.yml
-  #   with:
-  #     config_path: ${{ needs.set_env.outputs.config_path }}
-  #     architecture: ${{ github.event.inputs.architecture }}
-  #     #architecture: "[self-hosted,  ARM64]"
-  #     #env: ${{ github.event.inputs.environment }}
-  #     #secrets: inherit
+  UserBuild:
+    needs: [set_env]
+    name: User Trigger Build
+    if: ${{ github.event_name != 'schedule' }}
+    # job calling other workflow can't use steps in them
+    uses: ./.github/workflows/nightbuild_common.yml
+    with:
+      architecture: ${{ github.event.inputs.architecture }}
+      runner_label: ${{ needs.set_env.outputs.runs_on }}
+      #'[ "self-hosted", "X64" ]'
+      #architecture: "[self-hosted,  ARM64]"
+      #env: ${{ github.event.inputs.environment }}
+      #secrets: inherit
 
 
 
