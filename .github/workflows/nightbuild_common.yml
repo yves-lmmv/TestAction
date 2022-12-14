@@ -7,16 +7,16 @@ env:
 # This is a reausable workflow. must be called from a caller workflow
 on:
   workflow_call:
-    # secrets:
-      # REPO_USERNAME:
-      #   description: 'A token passed from the caller workflow'
-      #   required: true
+    secrets:
+      REPO_USERNAME:
+        description: 'A token passed from the caller workflow'
+        required: true
       # REPO_PASSWORD:
       #   description: 'A token passed from the caller workflow'
       #   required: true
-      # BOT_JENKINS_API_TOKEN:
-      #   description: 'A token passed from the caller workflow'
-      #   required: true
+      BOT_JENKINS_API_TOKEN:
+        description: 'A token passed from the caller workflow'
+        required: true
     inputs:
       architecture:
         required: true
