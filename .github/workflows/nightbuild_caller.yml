@@ -9,6 +9,10 @@ env:
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    secrets:
+        BOT_JENKINS_API_TOKEN:
+        description: 'A token passed from the caller workflow'
+        required: true
     inputs:
       gitRev:
         description: 'git rev or tag to build. default: head of current branch'
