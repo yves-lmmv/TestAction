@@ -194,7 +194,7 @@ jobs:
       debVersion:          ${{ needs.set_env.outputs.debVersion }}
       buildOptions:        ${{ needs.set_env.outputs.buildOptions }}
       pkgOptions:          ${{ needs.set_env.outputs.pkgOptions }}
-      secrets: inherit
+    secrets: inherit
 
 
   # This is the Nightbuild job for ARM 
