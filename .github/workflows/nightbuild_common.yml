@@ -14,10 +14,10 @@ on:
       #   required: true
       #   type: string
       #   default: 'dev'
-      config_path: 
-        required: true
-        type: string
-        default: 'dev'
+      # config_path: 
+      #   required: true
+      #   type: string
+      #   default: 'dev'
       architecture:
         required: true
         type: string
