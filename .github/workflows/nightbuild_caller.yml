@@ -4,7 +4,7 @@ name: BuildRelease_caller
 
 env:
   JenkinsUrl: http://jenkins1.sherb.vantrix.com:8080
-  test_string1: "test 123"
+
 # Controls when the workflow will run 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -27,6 +27,7 @@ on:
         - X64
         - ARM64
       buildType:
+        # Code in set_env need to be aligned with the options name
         description: 'Build Type'
         required: true
         default: 'Checkout, Clean, Build' 
@@ -35,8 +36,9 @@ on:
         - 'Checkout, Clean, Build'
         - 'Clean, Build'
         - 'Build'
-        - '${{env.test_string1}}'
+        - 'Nothing'
       postBuild:
+        # Code in set_env need to be aligned with the options name
         description: 'Post Build action. Debian/tgz generation, Nexus upload, Jenkins upload, Jenkins testing'
         required: true
         default: 'Debian, Nexus, Jenkins, Tests' 
@@ -46,38 +48,11 @@ on:
         - 'Debian, Nexus, Jenkins'
         - 'Debian, Nexus'
         - 'Debian'
-      # doAptGet: 
-      #   description: 'Apt get'
-      #   type: boolean
-      #   default: true
-      # doCheckout: 
-      #   description: 'code Checkout'
-      #   type: boolean
-      #   default: true
-      # doBuild: 
-      #   description: 'Build'
-      #   type: boolean
-      #   default: true
+
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
         default: '-v'
-      # doDebian: 
-      #   description: 'Generate Debian'
-      #   type: boolean
-      #   default: true
-      # doDebNexusUpload: 
-      #   description: 'Send the .deb to Nexus'
-      #   type: boolean
-      #   default: true
-      # doDebJenkinsUpload: 
-      #   description: 'Send the .deb to Jenkins'
-      #   type: boolean
-      #   default: true
-      # doJenkinsRegression: 
-      #   description: 'Start regression on Jenkins'
-      #   type: boolean
-      #   default: true
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -103,27 +78,55 @@ jobs:
           doJenkinsRegression='true'
           gitRev: ''
           buildOptions: '-v'
-
+          buildType="${{ github.event.inputs.buildType }}"
+          if [[ "${buildType}" = "Checkout, Clean, Build" ]]; then
+            echo "Checkout, Clean, Build..."
+          elif [[ "${buildType}" = "Clean, Build" ]]; then
+            echo "Clean, Build..."
+            doAptGet="false"
+            doCheckout='false'
+          elif [[ "${buildType}" = "Build" ]]; then
+            echo "Build..."
+            doAptGet="false"
+            doCheckout='false'
+          else
+            echo "buildType Parser not aligned with options name"
+            return 1
+          fi
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           #echo "::set-output name=test_value2::\"ABCDEF\""
           echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
           echo "running_on=[\"self-hosted\",  \"ARM64\"]" >> $GITHUB_ENV
           echo "showing env.test_from_githubenv ${{ env.test_from_githubenv }}"
+
+          echo "gitRev=${gitRev}"             >> $GITHUB_ENV
+          echo "buildOptions=${buildOptions}" >> $GITHUB_ENV
+          echo "doAptGet=${doAptGet}"         >> $GITHUB_ENV
+          echo "doCheckout=${doCheckout}"     >> $GITHUB_ENV
+          echo "doClean=${doClean}"           >> $GITHUB_ENV
+          echo "doBuild=${doBuild}"           >> $GITHUB_ENV
+          echo "doDebian=${doDebian}"         >> $GITHUB_ENV
+          echo "doDebNexusUpload=${doDebNexusUpload}"       >> $GITHUB_ENV
+          echo "doDebJenkinsUpload=${doDebJenkinsUpload}"   >> $GITHUB_ENV
+          echo "doJenkinsRegression=${doJenkinsRegression}" >> $GITHUB_ENV
+
+
     outputs:
 
       test_from_output: ${{ env.test_from_githubenv }}
       # running_on: ${{ env.running_on }}
       runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
-      doAptGet: 'true'
-      doCheckout: 'true'
-      doClean: 'true'
-      doBuild: 'true'
-      doDebian: 'false'
-      doDebNexusUpload: 'true'
-      doDebJenkinsUpload: 'true'
-      doJenkinsRegression: 'true'
-      gitRev: ''
-      buildOptions: '-v'
+      gitRev:       ${{ env.gitRev }}
+      buildOptions: ${{ env.buildOptions }}
+      doAptGet:     ${{ env.doAptGet }}
+      doCheckout:   ${{ env.doCheckout }}
+      doClean:      ${{ env.doClean }}
+      doBuild:      ${{ env.doBuild }}
+      doDebian:     ${{ env.doDebian }}
+      doDebNexusUpload:    ${{ env.doDebNexusUpload }}
+      doDebJenkinsUpload:  ${{ env.doDebJenkinsUpload }}
+      doJenkinsRegression: ${{ env.doJenkinsRegression }}
+
   # show_env_arm:
   #   runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
   #   #runs-on: [self-hosted,  ARM64]
