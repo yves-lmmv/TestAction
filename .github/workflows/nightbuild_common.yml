@@ -1,32 +1,21 @@
-# This is a basic workflow to help you get started with Actions
 
 name: BuildRelease common
 
 env:
   JenkinsUrl: http://jenkins1.sherb.vantrix.com:8080
 
-# Controls when the workflow will run 
+# This is a reausable workflow. must be called from a caller workflow
 on:
   workflow_call:
     inputs:
-      # pass in environment through manual trigger, if not passed in, default to 'dev'
-      # env:
-      #   required: true
-      #   type: string
-      #   default: 'dev'
-      # config_path: 
-      #   required: true
-      #   type: string
-      #   default: 'dev'
       architecture:
         required: true
         type: string
-        default: 'ARM64'
-      runner_label:
+        default: 'X64'
+      runnerLabel:
         required: true
         type: string
         default: '[ "self-hosted", "X64" ]'
-
       doAptGet:
         type: boolean
         default: true
@@ -45,6 +34,9 @@ on:
       doDebNexusUpload:
         type: boolean
         default: true
+      doTgzNexusUpload:
+        type: boolean
+        default: false
       doDebJenkinsUpload:
         type: boolean
         default: true
@@ -54,55 +46,27 @@ on:
       gitRev:
         type: string
         default: ""
+      debVersion:
+        type: string
+        default: ""
       buildOptions:
         type: string
         default: "-v"
+      pkgOptions:
+        type: string
+        default: ""
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  #reusable_workflow_job:
-  # This workflow contains a single job called "build"
-  # set_env_common:
-  #   runs-on: self-hosted
-  #   # [self-hosted,  X64]
-  #   steps:
-  #   - name: set runs-on!
-  #     run: echo "runs_on=[self-hosted, ${{ inputs.architecture }}]" >> $GITHUB_OUTPUT
-  #   outputs:
-  #     runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
 
   build:
     # The type of runner that the job will run on
-    runs-on: ${{ fromJson(inputs.runner_label) }}
+    runs-on: ${{ fromJson(inputs.runnerLabel) }}
     timeout-minutes: 110
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # When a schedule (cron) run the action, it didn't have access to the various variable
-      # defined above. ex : ${{ github.event.inputs.doCheckout }}
-      # so here we export those variable to a new name with the user value if set or a default
-      # value if not.
-      # The variable will be accessible under ${{ env.VAR_NAME }}"
-      # IMPORTANT : ALL default are set to true like the list above
-      # the other string variable are empty so this is not a problem
-      - name: Export user input default
-        # with:
-        #   configuration-path: ${{ inputs.config-path }}
-        id: name
-        run: |
-          # echo "GITHUB_ENV=$GITHUB_ENV"
-          # ls -l $GITHUB_ENV
-          # echo "needs.set_env_common.outputs.runs_on=${{needs.set_env_common.outputs.runs_on}}"
-          # echo "doAptGet=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
-          # echo "doAptGet2=${{ github.event.inputs.doAptGet }}" >> $GITHUB_ENV
-          # echo "doCheckout=${{ github.event.inputs.doCheckout }}" >> $GITHUB_ENV
-          # echo "doBuild=${{ github.event.inputs.doBuild }}" >> $GITHUB_ENV
-          # echo "doDebian=${{ github.event.inputs.doDebian }}" >> $GITHUB_ENV
-          # echo "doDebJenkinsUpload=${{ github.event.inputs.doDebJenkinsUpload }}" >> $GITHUB_ENV
-          # echo "doJenkinsRegression=${{ github.event.inputs.doJenkinsRegression }}" >> $GITHUB_ENV
-          # echo "doDebNexusUpload=${{ github.event.inputs.doDebNexusUpload }}" >> $GITHUB_ENV
-          cat $GITHUB_ENV
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+
       - name: Check out repo
         if: ${{ inputs.doCheckout }}
         run: | 
@@ -152,13 +116,14 @@ jobs:
           # export OPTBASE_OVERRIDE=/tmp/opt
           # cd Ltrx-ToolsAndDoc
           # DEB_NAME="${{ inputs.debVersion }}"
+          # PKG_OPTIONS="${{ inputs.pkgOptions }}"
           # if [ "${DEB_NAME}" == "" ]; then
           #   DEB_NAME=$(./scripts/generate_build_name.sh)
           # fi
           # echo "Cleaning all previous distro/ltrx"
           # rm /tmp/distro/ltrx -rf
-          # echo "Building debian version=${DEB_NAME}"
-          # ./scripts/release_ltrx_deb.sh --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
+          # echo "Building debian version=${DEB_NAME} "
+          # ./scripts/release_ltrx_deb.sh ${PKG_OPTIONS} --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
 
       - name: Copy .deb LTRX to permanent storage
         if: ${{ inputs.doDebNexusUpload }}
@@ -166,18 +131,37 @@ jobs:
             echo "Copy .deb"
             # export OPTBASE_OVERRIDE=/tmp/opt
             # cd Ltrx-ToolsAndDoc
-            # DEB_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
-            # echo "copying ${DEB_LOCATION}"
+            # # The trace from the release script look like this : dpkg-deb: building package 'spotxde-ltrx' in '/home/lmmv/distro/aarch64-linux-gnu/ltrx/DEBS/spotxde-ltrx_22.12.0077_aarch64.deb'.
+            # PKG_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
+            # echo "copying ${PKG_LOCATION}"
             # # is this a nightbuild or normal build ?
             # PATH_END="/"
             # if [ "${{ inputs.debVersion }}" == "" ]; then
             #   PATH_END="/Nightbuild/"
             # fi
-            # #https://nexus.vantrix.tv/repository/deb/x86_64/ltrx/${PATH_END}
             # # curl didn't like reading from /tmp
-            # cp "${DEB_LOCATION}" .
-            # DEB_FILE=$(basename ${DEB_LOCATION})
-            # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${DEB_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${DEB_FILE}"
+            # cp "${PKG_LOCATION}" .
+            # PKG_FILE=$(basename ${PKG_LOCATION})
+            # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
+
+      - name: Copy .tgz LTRX to permanent storage
+        if: ${{ inputs.doTgzNexusUpload }}
+        run: |
+            echo "Copy .tgz"
+            # export OPTBASE_OVERRIDE=/tmp/opt
+            # cd Ltrx-ToolsAndDoc
+            # # The trace from the release script look like this : output TGZ : /home/lmmv/distro/aarch64-linux-gnu/ltrx/TGZ/spotxde-ltrx_22.12.0077_aarch64.tgz
+            # PKG_LOCATION=$(grep "output TGZ" logs/release_ltrx_deb.log  | awk '{ print $4 }' )
+            # echo "copying ${PKG_LOCATION}"
+            # # is this a nightbuild or normal build ?
+            # PATH_END="/"
+            # if [ "${{ inputs.debVersion }}" == "" ]; then
+            #   PATH_END="/Nightbuild/"
+            # fi
+            # # curl didn't like reading from /tmp
+            # cp "${PKG_LOCATION}" .
+            # PKG_FILE=$(basename ${PKG_LOCATION})
+            # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
 
       - name: Copy .deb LTRX Jenkins
         if: ${{ inputs.doDebJenkinsUpload }}

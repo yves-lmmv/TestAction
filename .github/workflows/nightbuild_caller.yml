@@ -53,17 +53,16 @@ on:
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
-        default: '-v'
+        default: ''
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
+
 
   set_env:
-    # name: build caller
     if: ${{ github.event_name != 'schedule' }}
+    name: 'setup Env for user triggered build'
     runs-on: self-hosted
-
     steps:
   
     - name: Setup Env
@@ -75,10 +74,13 @@ jobs:
           doBuild='true'
           doDebian='true'
           doDebNexusUpload='true'
+          doTgzNexusUpload='false'
           doDebJenkinsUpload='true'
           doJenkinsRegression='true'
-          gitRev=''
-          buildOptions='-v'
+          gitRev="${{ github.event.inputs.gitRev }}"
+          debVersion="${{ github.event.inputs.debVersion }}"
+          buildOptions="${{ github.event.inputs.buildOptions }}"
+          pkgOptions=""
           buildType="${{ github.event.inputs.buildType }}"
           postBuild="${{ github.event.inputs.postBuild }}"
 
@@ -131,96 +133,42 @@ jobs:
             return 1
           fi
           
-          echo "test_value=ABC" >> $GITHUB_OUTPUT
-          #echo "::set-output name=test_value2::\"ABCDEF\""
-          echo "test_from_githubenv=[1234556788, sfa]" >> $GITHUB_ENV
-          echo "running_on=[\"self-hosted\",  \"ARM64\"]" >> $GITHUB_ENV
-          echo "showing env.test_from_githubenv ${{ env.test_from_githubenv }}"
+          if [[ "${architecture}" = "ARM64" ]]; then
+            echo "Settings specific build and package option for ARM."
+            buildOptions="${buildOptions} --strip --buildtype minsize"
+            pkgOptions="--tgz --tgz-add-system-libs"
+          fi
 
           echo "gitRev=${gitRev}"             >> $GITHUB_ENV
+          echo "debVersion=${debVersion}"     >> $GITHUB_ENV
           echo "buildOptions=${buildOptions}" >> $GITHUB_ENV
+          echo "pkgOptions=${pkgOptions}"     >> $GITHUB_ENV
           echo "doAptGet=${doAptGet}"         >> $GITHUB_ENV
           echo "doCheckout=${doCheckout}"     >> $GITHUB_ENV
           echo "doClean=${doClean}"           >> $GITHUB_ENV
           echo "doBuild=${doBuild}"           >> $GITHUB_ENV
           echo "doDebian=${doDebian}"         >> $GITHUB_ENV
           echo "doDebNexusUpload=${doDebNexusUpload}"       >> $GITHUB_ENV
+          echo "doTgzNexusUpload=${doTgzNexusUpload}"       >> $GITHUB_ENV
           echo "doDebJenkinsUpload=${doDebJenkinsUpload}"   >> $GITHUB_ENV
           echo "doJenkinsRegression=${doJenkinsRegression}" >> $GITHUB_ENV
-
-
     outputs:
-
-      test_from_output: ${{ env.test_from_githubenv }}
-      # running_on: ${{ env.running_on }}
-      runs_on: '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
+      runs_on:      '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
       gitRev:       ${{ env.gitRev }}
+      debVersion:   ${{ env.debVersion }}
       buildOptions: ${{ env.buildOptions }}
+      pkgOptions:   ${{ env.pkgOptions }}
       doAptGet:     ${{ env.doAptGet }}
       doCheckout:   ${{ env.doCheckout }}
       doClean:      ${{ env.doClean }}
       doBuild:      ${{ env.doBuild }}
       doDebian:     ${{ env.doDebian }}
       doDebNexusUpload:    ${{ env.doDebNexusUpload }}
+      doTgzNexusUpload:    ${{ env.doTgzNexusUpload }}
       doDebJenkinsUpload:  ${{ env.doDebJenkinsUpload }}
       doJenkinsRegression: ${{ env.doJenkinsRegression }}
 
-  # show_env_arm:
-  #   runs-on: ${{ fromJson(needs.set_env.outputs.runs_on) }}
-  #   #runs-on: [self-hosted,  ARM64]
-  #   needs: [set_env]
-  #   steps:
-  #   - name: Show ENV ARM
-  #     run: | 
-  #       echo "SHow env ARM64 ${{ needs.set_env.outputs.config_path }}"
-  #       echo "SHow needs.set_env.outputs.test_value=${{ needs.set_env.outputs.test_value }}"
-  #       echo "SHow needs.set_env.outputs.val_test_value=${{ needs.set_env.outputs.val_test_value }}"
-  #       echo "SHow needs.set_env.outputs=${{ needs.set_env.outputs }}"
-  #       echo "Show env.test_from_githubenv= ${{ env.test_from_githubenv }}"
-  #       echo 'env = ${{ toJSON(env) }}'
-  #       echo 'needs = ${{ toJSON(needs) }}'
-
-
-  # show_env:
-  #   runs-on: [self-hosted,  X64]
-  #   needs: [set_env]
-  #   steps:
-  #   - name: Show ENV X64
-  #     run: echo "SHow env X64 ${{ needs.set_env.outputs.config_path }}"
-
-  # show1_env:
-  #   runs-on: self-hosted
-  #   needs: [set_env]
-  #   if: ${{ github.event_name == 'schedule' }}
-  #   steps:
-  #   - name: Show ENV SCHEDULE
-  #     run: echo "SHow env ${{ needs.set_env.outputs.config_path }}"
-
-  NightBuildARM64:
-    name: NightBuildARM64
-    if: ${{ github.event_name == 'schedule' }}
-    # job calling other workflow can't use steps in them
-    uses: ./.github/workflows/nightbuild_common.yml
-    with:
-      architecture: ARM64
-      runner_label: '[ "self-hosted", "ARM64" ]'
-      doDebian: false
-      #architecture: "[self-hosted,  ARM64]"
-      #env: ${{ github.event.inputs.environment }}
-      #secrets: inherit
-
-  NightBuildX64:
-    name: NightBuildX64
-    if: ${{ github.event_name == 'schedule' }}
-    # job calling other workflow can't use steps in them
-    uses: ./.github/workflows/nightbuild_common.yml
-    with:
-      architecture: X64
-      runner_label: '[ "self-hosted", "X64" ]'
-      #architecture: "[self-hosted,  ARM64]"
-      #env: ${{ github.event.inputs.environment }}
-      #secrets: inherit
-
+  # This is the actual job launcher for User triggered build
   UserBuild:
     needs: [set_env]
     name: User Trigger Build
@@ -229,18 +177,52 @@ jobs:
     uses: ./.github/workflows/nightbuild_common.yml
     with:
       architecture:        ${{ github.event.inputs.architecture }}
-      runner_label:        ${{ needs.set_env.outputs.runs_on }}
+      runnerLabel:         ${{ needs.set_env.outputs.runs_on }}
       doAptGet:            ${{ fromJson(needs.set_env.outputs.doAptGet) }}
       doCheckout:          ${{ fromJson(needs.set_env.outputs.doCheckout) }}
       doClean:             ${{ fromJson(needs.set_env.outputs.doClean) }}
       doBuild:             ${{ fromJson(needs.set_env.outputs.doBuild) }}
       doDebian:            ${{ fromJson(needs.set_env.outputs.doDebian) }}
       doDebNexusUpload:    ${{ fromJson(needs.set_env.outputs.doDebNexusUpload) }}
+      doTgzNexusUpload:    ${{ fromJson(needs.set_env.outputs.doTgzNexusUpload) }}
       doDebJenkinsUpload:  ${{ fromJson(needs.set_env.outputs.doDebJenkinsUpload) }}
       doJenkinsRegression: ${{ fromJson(needs.set_env.outputs.doJenkinsRegression) }}
       gitRev:              ${{ needs.set_env.outputs.gitRev }}
+      debVersion:          ${{ needs.set_env.outputs.debVersion }}
       buildOptions:        ${{ needs.set_env.outputs.buildOptions }}
+      pkgOptions:          ${{ needs.set_env.outputs.pkgOptions }}
       #secrets: inherit
+
+
+  # This is the Nightbuild job for ARM 
+  NightBuildARM64:
+    name: NightBuildARM64
+    if: ${{ github.event_name == 'schedule' }}
+    # job calling other workflow can't use steps in them
+    uses: ./.github/workflows/nightbuild_common.yml
+    with:
+      architecture: ARM64
+      runnerLabel:  '[ "self-hosted", "ARM64" ]'
+      buildOptions: '-v --strip --buildtype minsize'
+      pkgOptions:   '--tgz --tgz-add-system-libs'
+      doTgzNexusUpload:    true
+      doDebJenkinsUpload:  false
+      doJenkinsRegression: false
+      #secrets: inherit
+
+  # This is the Nightbuild job for Intel 
+  NightBuildX64:
+    name: NightBuildX64
+    if: ${{ github.event_name == 'schedule' }}
+    # job calling other workflow can't use steps in them
+    uses: ./.github/workflows/nightbuild_common.yml
+    with:
+      architecture: X64
+      runnerLabel:  '[ "self-hosted", "X64" ]'
+      buildOptions: '-v'
+      #secrets: inherit
+
+
 
 
 
