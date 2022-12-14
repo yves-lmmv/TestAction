@@ -53,11 +53,10 @@ on:
       buildOptions:
         description: 'option to pass to buildall script (ex: "--build ltrx")'
         required: false
-        default: ''
+        default: '-v'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-
 
   set_env:
     if: ${{ github.event_name != 'schedule' }}
@@ -191,7 +190,7 @@ jobs:
       debVersion:          ${{ needs.set_env.outputs.debVersion }}
       buildOptions:        ${{ needs.set_env.outputs.buildOptions }}
       pkgOptions:          ${{ needs.set_env.outputs.pkgOptions }}
-      #secrets: inherit
+      secrets: inherit
 
 
   # This is the Nightbuild job for ARM 
@@ -208,7 +207,7 @@ jobs:
       doTgzNexusUpload:    true
       doDebJenkinsUpload:  false
       doJenkinsRegression: false
-      #secrets: inherit
+      secrets: inherit
 
   # This is the Nightbuild job for Intel 
   NightBuildX64:
@@ -220,7 +219,7 @@ jobs:
       architecture: X64
       runnerLabel:  '[ "self-hosted", "X64" ]'
       buildOptions: '-v'
-      #secrets: inherit
+      secrets: inherit
 
 
 

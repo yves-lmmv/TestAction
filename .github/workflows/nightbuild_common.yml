@@ -70,194 +70,188 @@ jobs:
       - name: Check out repo
         if: ${{ inputs.doCheckout }}
         run: | 
-          echo "checkout"
-          # rm Ltrx-ToolsAndDoc -rf
-          # git clone --recursive git@github.com:likeMindedLabs/Ltrx-ToolsAndDoc.git
-          # cd Ltrx-ToolsAndDoc
-          # GIT_REV="${{ inputs.gitRev }}"
-          # if [ "${GIT_REV}" != "" ]; then
-          #   echo "Checkout and update to rev: ${GIT_REV}"
-          #   git checkout "${GIT_REV}"
-          #   git submodule update
-          #   ## if a rev or tag is specified, this means it is not a nightbuild (HEAD)
-          #   ## so we need to set all the meson .wrap file to point to the proper version
-          #   ## of all the current submodules
-          #   echo "Setting all Meson .wrap to current submodules"
-          #   # we skip the step that check if each submodule is up to date vs HEAD.
-          #   # we fix all wrap file to the submodule version in the tree
-          #   ./scripts/git_check.sh --skip-submodules --fix-wrap
-          # fi
+          rm Ltrx-ToolsAndDoc -rf
+          git clone --recursive git@github.com:likeMindedLabs/Ltrx-ToolsAndDoc.git
+          cd Ltrx-ToolsAndDoc
+          GIT_REV="${{ inputs.gitRev }}"
+          if [ "${GIT_REV}" != "" ]; then
+            echo "Checkout and update to rev: ${GIT_REV}"
+            git checkout "${GIT_REV}"
+            git submodule update
+            ## if a rev or tag is specified, this means it is not a nightbuild (HEAD)
+            ## so we need to set all the meson .wrap file to point to the proper version
+            ## of all the current submodules
+            echo "Setting all Meson .wrap to current submodules"
+            # we skip the step that check if each submodule is up to date vs HEAD.
+            # we fix all wrap file to the submodule version in the tree
+            ./scripts/git_check.sh --skip-submodules --fix-wrap
+          fi
 
       - name: running script setup_ubuntu.sh (apt get package)
         if: ${{ inputs.doAptGet }}
         run: |
-          # sudo ./Ltrx-ToolsAndDoc/scripts/setup_ubuntu.sh
+          sudo ./Ltrx-ToolsAndDoc/scripts/setup_ubuntu.sh
 
       - name: Clean previous build
         if: ${{ inputs.doClean }}
         run: |
-          # rm /tmp/opt -rf
+          rm /tmp/opt -rf
 
       - name: Building LTRX
         if: ${{ inputs.doBuild }}
         run: |
-          # export OPTBASE_OVERRIDE=/tmp/opt
-          # cd Ltrx-ToolsAndDoc
-          # BUILD_OPTIONS="${{ github.event.inputs.buildOptions }}"
-          # export NEXUS_USER=${{ secrets.REPO_USERNAME }}
-          # export NEXUS_PASSWORD=${{ secrets.REPO_PASSWORD }}
-          # ./scripts/buildall.sh ${BUILD_OPTIONS}
-          echo "Build LTRX"
+          export OPTBASE_OVERRIDE=/tmp/opt
+          cd Ltrx-ToolsAndDoc
+          BUILD_OPTIONS="${{ github.event.inputs.buildOptions }}"
+          export NEXUS_USER=${{ secrets.REPO_USERNAME }}
+          export NEXUS_PASSWORD=${{ secrets.REPO_PASSWORD }}
+          ./scripts/buildall.sh ${BUILD_OPTIONS}
           
       - name: Release .deb LTRX
         if: ${{ inputs.doDebian }}
         run: |
           echo "Release .deb"
-          # export OPTBASE_OVERRIDE=/tmp/opt
-          # cd Ltrx-ToolsAndDoc
-          # DEB_NAME="${{ inputs.debVersion }}"
-          # PKG_OPTIONS="${{ inputs.pkgOptions }}"
-          # if [ "${DEB_NAME}" == "" ]; then
-          #   DEB_NAME=$(./scripts/generate_build_name.sh)
-          # fi
-          # echo "Cleaning all previous distro/ltrx"
-          # rm /tmp/distro/ltrx -rf
-          # echo "Building debian version=${DEB_NAME} "
-          # ./scripts/release_ltrx_deb.sh ${PKG_OPTIONS} --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
+          export OPTBASE_OVERRIDE=/tmp/opt
+          cd Ltrx-ToolsAndDoc
+          DEB_NAME="${{ inputs.debVersion }}"
+          PKG_OPTIONS="${{ inputs.pkgOptions }}"
+          if [ "${DEB_NAME}" == "" ]; then
+            DEB_NAME=$(./scripts/generate_build_name.sh)
+          fi
+          echo "Cleaning all previous distro/ltrx"
+          rm /tmp/distro/ltrx -rf
+          echo "Building debian version=${DEB_NAME} "
+          ./scripts/release_ltrx_deb.sh ${PKG_OPTIONS} --skip-date-check --version "${DEB_NAME}" --distro /tmp/distro/ltrx | tee logs/release_ltrx_deb.log
 
       - name: Copy .deb LTRX to permanent storage
         if: ${{ inputs.doDebNexusUpload }}
         run: |
-            echo "Copy .deb"
-            # export OPTBASE_OVERRIDE=/tmp/opt
-            # cd Ltrx-ToolsAndDoc
-            # # The trace from the release script look like this : dpkg-deb: building package 'spotxde-ltrx' in '/home/lmmv/distro/aarch64-linux-gnu/ltrx/DEBS/spotxde-ltrx_22.12.0077_aarch64.deb'.
-            # PKG_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
-            # echo "copying ${PKG_LOCATION}"
-            # # is this a nightbuild or normal build ?
-            # PATH_END="/"
-            # if [ "${{ inputs.debVersion }}" == "" ]; then
-            #   PATH_END="/Nightbuild/"
-            # fi
-            # # curl didn't like reading from /tmp
-            # cp "${PKG_LOCATION}" .
-            # PKG_FILE=$(basename ${PKG_LOCATION})
-            # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
+            export OPTBASE_OVERRIDE=/tmp/opt
+            cd Ltrx-ToolsAndDoc
+            # The trace from the release script look like this : dpkg-deb: building package 'spotxde-ltrx' in '/home/lmmv/distro/aarch64-linux-gnu/ltrx/DEBS/spotxde-ltrx_22.12.0077_aarch64.deb'.
+            PKG_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
+            echo "copying ${PKG_LOCATION}"
+            # is this a nightbuild or normal build ?
+            PATH_END="/"
+            if [ "${{ inputs.debVersion }}" == "" ]; then
+              PATH_END="/Nightbuild/"
+            fi
+            # curl didn't like reading from /tmp
+            cp "${PKG_LOCATION}" .
+            PKG_FILE=$(basename ${PKG_LOCATION})
+            curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
 
       - name: Copy .tgz LTRX to permanent storage
         if: ${{ inputs.doTgzNexusUpload }}
         run: |
-            echo "Copy .tgz"
-            # export OPTBASE_OVERRIDE=/tmp/opt
-            # cd Ltrx-ToolsAndDoc
-            # # The trace from the release script look like this : output TGZ : /home/lmmv/distro/aarch64-linux-gnu/ltrx/TGZ/spotxde-ltrx_22.12.0077_aarch64.tgz
-            # PKG_LOCATION=$(grep "output TGZ" logs/release_ltrx_deb.log  | awk '{ print $4 }' )
-            # echo "copying ${PKG_LOCATION}"
-            # # is this a nightbuild or normal build ?
-            # PATH_END="/"
-            # if [ "${{ inputs.debVersion }}" == "" ]; then
-            #   PATH_END="/Nightbuild/"
-            # fi
-            # # curl didn't like reading from /tmp
-            # cp "${PKG_LOCATION}" .
-            # PKG_FILE=$(basename ${PKG_LOCATION})
-            # curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
+            export OPTBASE_OVERRIDE=/tmp/opt
+            cd Ltrx-ToolsAndDoc
+            # The trace from the release script look like this : output TGZ : /home/lmmv/distro/aarch64-linux-gnu/ltrx/TGZ/spotxde-ltrx_22.12.0077_aarch64.tgz
+            PKG_LOCATION=$(grep "output TGZ" logs/release_ltrx_deb.log  | awk '{ print $4 }' )
+            echo "copying ${PKG_LOCATION}"
+            # is this a nightbuild or normal build ?
+            PATH_END="/"
+            if [ "${{ inputs.debVersion }}" == "" ]; then
+              PATH_END="/Nightbuild/"
+            fi
+            # curl didn't like reading from /tmp
+            cp "${PKG_LOCATION}" .
+            PKG_FILE=$(basename ${PKG_LOCATION})
+            curl --fail -u ${{ secrets.REPO_USERNAME }}:${{ secrets.REPO_PASSWORD }} --upload-file "${PKG_FILE}" "https://nexus.vantrix.tv/repository/raw/dev/apt/ltrx${PATH_END}${PKG_FILE}"
 
       - name: Copy .deb LTRX Jenkins
         if: ${{ inputs.doDebJenkinsUpload }}
         run: |
-            echo "Deb jenkins upload"
-            # cd Ltrx-ToolsAndDoc
-            # USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
-            # DEB_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
-            # # curl didn't like reading from /tmp
-            # cp "${DEB_LOCATION}" .
-            # DEB_FILE=$(basename ${DEB_LOCATION})
+            cd Ltrx-ToolsAndDoc
+            USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
+            DEB_LOCATION=$(grep "dpkg-deb: building" logs/release_ltrx_deb.log  | awk '{ print $6 }' | sed "s/'/ /g" | awk '{ print $1 }')
+            # curl didn't like reading from /tmp
+            cp "${DEB_LOCATION}" .
+            DEB_FILE=$(basename ${DEB_LOCATION})
 
-            # echo "DO debian upload on Jenkins job UploadDebFile for file ${DEB_FILE}"
-            # curl -v --silent ${{env.JenkinsUrl}}/job/UploadDebFile/buildWithParameters --user ${USERPW} --form uploadLtrxDeb=@${DEB_FILE} >outputUpload.txt 2>&1
-            # grep --quiet "201 Created" outputUpload.txt
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Error uploading .deb to Jenkins. Http response: "
-            #   cat outputUpload.txt
-            #   exit 1
-            # fi
+            echo "DO debian upload on Jenkins job UploadDebFile for file ${DEB_FILE}"
+            curl -v --silent ${{env.JenkinsUrl}}/job/UploadDebFile/buildWithParameters --user ${USERPW} --form uploadLtrxDeb=@${DEB_FILE} >outputUpload.txt 2>&1
+            grep --quiet "201 Created" outputUpload.txt
+            if [[ $? -ne 0 ]];
+            then
+              echo "Error uploading .deb to Jenkins. Http response: "
+              cat outputUpload.txt
+              return 1
+            fi
 
-            # # Now we need to wait for the new item in Jenkins queue to be processed
-            # # search for the new item created Location in the output response
-            # # make sure to remove the carriage return that is part of http header response
-            # LOCATION=$(grep Location outputUpload.txt | awk '{print $NF}' | tr -d '\r')
-            # echo "${LOCATION}" | grep --quiet http
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Location in Http response invalid"
-            #   cat outputUpload.txt
-            #   exit 1
-            # fi
+            # Now we need to wait for the new item in Jenkins queue to be processed
+            # search for the new item created Location in the output response
+            # make sure to remove the carriage return that is part of http header response
+            LOCATION=$(grep Location outputUpload.txt | awk '{print $NF}' | tr -d '\r')
+            echo "${LOCATION}" | grep --quiet http
+            if [[ $? -ne 0 ]];
+            then
+              echo "Location in Http response invalid"
+              cat outputUpload.txt
+              return 1
+            fi
 
-            # echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
-            # ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
+            echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
+            ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
 
       - name: Start Jenkins regression
         if: ${{ inputs.doJenkinsRegression }}
         run: |
-            echo "Start Jenkins regression"
-            # cd Ltrx-ToolsAndDoc
-            # USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
-            # echo "DO Prepare Jenkins regression"
-            # curl -v --silent ${{env.JenkinsUrl}}/job/UpdateLtrxTest/buildWithParameters --user ${USERPW} --data dummy=dummy >outputCreateTest.txt 2>&1
-            # grep --quiet "201 Created" outputCreateTest.txt
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Error creating test on Jenkins. Http response: "
-            #   cat outputCreateTest.txt
-            #   exit 1
-            # fi
+            cd Ltrx-ToolsAndDoc
+            USERPW="bot:${{ secrets.BOT_JENKINS_API_TOKEN }}"
+            echo "DO Prepare Jenkins regression"
+            curl -v --silent ${{env.JenkinsUrl}}/job/UpdateLtrxTest/buildWithParameters --user ${USERPW} --data dummy=dummy >outputCreateTest.txt 2>&1
+            grep --quiet "201 Created" outputCreateTest.txt
+            if [[ $? -ne 0 ]];
+            then
+              echo "Error creating test on Jenkins. Http response: "
+              cat outputCreateTest.txt
+              return 1
+            fi
             
-            # # Now we need to wait for the new item in Jenkins queue to be processed
-            # # search for the new item created Location in the output response
-            # # make sure to remove the carriage return that is part of http header response
-            # LOCATION=$(grep Location outputCreateTest.txt | awk '{print $NF}' | tr -d '\r')
-            # echo "${LOCATION}" | grep --quiet http
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Location in Http response invalid"
-            #   cat outputCreateTest.txt
-            #   exit 1
-            # fi
+            # Now we need to wait for the new item in Jenkins queue to be processed
+            # search for the new item created Location in the output response
+            # make sure to remove the carriage return that is part of http header response
+            LOCATION=$(grep Location outputCreateTest.txt | awk '{print $NF}' | tr -d '\r')
+            echo "${LOCATION}" | grep --quiet http
+            if [[ $? -ne 0 ]];
+            then
+              echo "Location in Http response invalid"
+              cat outputCreateTest.txt
+              return 1
+            fi
 
-            # echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
-            # ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
+            echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
+            ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
 
-            # echo "Test suite created in Test_Nightbuild"
+            echo "Test suite created in Test_Nightbuild"
 
 
-            # echo "Launch Jenkins regression. Will wait for it to start (but not to finish)"
-            # echo "Go see it at ${{env.JenkinsUrl}}/job/Test_NightBuild"
-            # curl -v --silent ${{env.JenkinsUrl}}/job/Test_NightBuild/job/00_Launcher_ALL/build --user ${USERPW} --data dummy=dummy >outputStart.txt 2>&1
-            # grep --quiet "201 Created" outputStart.txt
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Error starting Test_NightBuild/job/00_Launcher_ALL on Jenkins. Http response: "
-            #   cat outputStart.txt
-            #   exit 1
-            # fi
+            echo "Launch Jenkins regression. Will wait for it to start (but not to finish)"
+            echo "Go see it at ${{env.JenkinsUrl}}/job/Test_NightBuild"
+            curl -v --silent ${{env.JenkinsUrl}}/job/Test_NightBuild/job/00_Launcher_ALL/build --user ${USERPW} --data dummy=dummy >outputStart.txt 2>&1
+            grep --quiet "201 Created" outputStart.txt
+            if [[ $? -ne 0 ]];
+            then
+              echo "Error starting Test_NightBuild/job/00_Launcher_ALL on Jenkins. Http response: "
+              cat outputStart.txt
+              exit 1
+            fi
 
-            # # Now we need to wait for the new item in Jenkins queue to be processed
-            # # search for the new item created Location in the output response
-            # # make sure to remove the carriage return that is part of http header response
-            # LOCATION=$(grep Location outputStart.txt | awk '{print $NF}' | tr -d '\r')
-            # echo "${LOCATION}" | grep --quiet http
-            # if [[ $? -ne 0 ]];
-            # then
-            #   echo "Location in Http response invalid"
-            #   cat outputStart.txt
-            #   exit 1
-            # fi
+            # Now we need to wait for the new item in Jenkins queue to be processed
+            # search for the new item created Location in the output response
+            # make sure to remove the carriage return that is part of http header response
+            LOCATION=$(grep Location outputStart.txt | awk '{print $NF}' | tr -d '\r')
+            echo "${LOCATION}" | grep --quiet http
+            if [[ $? -ne 0 ]];
+            then
+              echo "Location in Http response invalid"
+              cat outputStart.txt
+              exit 1
+            fi
 
-            # echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
-            # ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
+            echo "We need to wait for item in Jenkins queue to be processed : ${LOCATION}"
+            ./scripts/jenkins/waitForJob.sh "${LOCATION}" "${USERPW}"
 
-            # echo "Test Started on Jenkins. Go see it at ${{env.JenkinsUrl}}/job/Test_NightBuild"
-            # echo "Done"
+            echo "Test Started on Jenkins. Go see it at ${{env.JenkinsUrl}}/job/Test_NightBuild"
+            echo "Done"
