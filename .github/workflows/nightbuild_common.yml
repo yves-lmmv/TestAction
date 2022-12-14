@@ -7,7 +7,7 @@ env:
 # This is a reausable workflow. must be called from a caller workflow
 on:
   workflow_call:
-    secrets:
+    # secrets:
       # REPO_USERNAME:
       #   description: 'A token passed from the caller workflow'
       #   required: true
