@@ -200,8 +200,8 @@ jobs:
       doDebNexusUpload:    ${{ fromJson(needs.set_env.outputs.doDebNexusUpload) }}
       doDebJenkinsUpload:  ${{ fromJson(needs.set_env.outputs.doDebJenkinsUpload) }}
       doJenkinsRegression: ${{ fromJson(needs.set_env.outputs.doJenkinsRegression) }}
-      gitRev:              ${{ fromJson(needs.set_env.outputs.gitRev) }}
-      buildOptions:        ${{ fromJson(needs.set_env.outputs.buildOptions) }}
+      gitRev:              ${{ needs.set_env.outputs.gitRev }}
+      buildOptions:        ${{ needs.set_env.outputs.buildOptions }}
       #secrets: inherit
 
 
