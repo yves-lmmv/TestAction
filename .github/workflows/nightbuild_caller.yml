@@ -133,7 +133,7 @@ jobs:
             return 1
           fi
           
-          if [[ "${architecture}" = "ARM64" ]]; then
+          if [[ "${{ github.event.inputs.architecture }}" = "ARM64" ]]; then
             echo "Settings specific build and package option for ARM."
             buildOptions="${buildOptions} --strip --buildtype minsize"
             pkgOptions="--tgz --tgz-add-system-libs"
