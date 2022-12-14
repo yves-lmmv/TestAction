@@ -211,7 +211,7 @@ jobs:
       doTgzNexusUpload:    true
       doDebJenkinsUpload:  false
       doJenkinsRegression: false
-      secrets: inherit
+    secrets: inherit
 
   # This is the Nightbuild job for Intel 
   NightBuildX64:
@@ -223,7 +223,7 @@ jobs:
       architecture: X64
       runnerLabel:  '[ "self-hosted", "X64" ]'
       buildOptions: '-v'
-      secrets: inherit
+    secrets: inherit
 
 
 
