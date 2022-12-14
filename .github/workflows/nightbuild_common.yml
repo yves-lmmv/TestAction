@@ -176,6 +176,7 @@ jobs:
           fi
 
       - name: Copy .deb LTRX to permanent storage
+        if: ${{ inputs.doDebian }}
         run: |
           if [ "${{ inputs.doDebian }}" == "true" ] && 
           [ "${{ inputs.doDebNexusUpload }}" == "true" ]; 
