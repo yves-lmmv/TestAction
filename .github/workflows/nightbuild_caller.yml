@@ -4,7 +4,7 @@ name: BuildRelease_caller
 
 env:
   JenkinsUrl: http://jenkins1.sherb.vantrix.com:8080
-
+  test_string1: "test 123"
 # Controls when the workflow will run 
 on:
   # Allows you to run this workflow manually from the Actions tab
@@ -35,6 +35,7 @@ on:
         - 'Checkout, Clean, Build'
         - 'Clean, Build'
         - 'Build'
+        - ${{env.test_string1}}
       postBuild:
         description: 'Post Build action. Debian/tgz generation, Nexus upload, Jenkins upload, Jenkins testing'
         required: true
@@ -91,7 +92,17 @@ jobs:
   
     - name: Setup Env
       run: |
-          echo "HERE2"
+          echo "Creating proper flags based on user choice"
+          doAptGet="true"
+          doCheckout='true'
+          doClean='true'
+          doBuild='true'
+          doDebian='true'
+          doDebNexusUpload='true'
+          doDebJenkinsUpload='true'
+          doJenkinsRegression='true'
+          gitRev: ''
+          buildOptions: '-v'
 
           echo "test_value=ABC" >> $GITHUB_OUTPUT
           #echo "::set-output name=test_value2::\"ABCDEF\""
@@ -176,12 +187,18 @@ jobs:
     # job calling other workflow can't use steps in them
     uses: ./.github/workflows/nightbuild_common.yml
     with:
-      architecture: ${{ github.event.inputs.architecture }}
-      runner_label: ${{ needs.set_env.outputs.runs_on }}
-      doDebian: ${{ fromJson(needs.set_env.outputs.doDebian) }}
-      #'[ "self-hosted", "X64" ]'
-      #architecture: "[self-hosted,  ARM64]"
-      #env: ${{ github.event.inputs.environment }}
+      architecture:        ${{ github.event.inputs.architecture }}
+      runner_label:        ${{ needs.set_env.outputs.runs_on }}
+      doAptGet:            ${{ fromJson(needs.set_env.outputs.doAptGet) }}
+      doCheckout:          ${{ fromJson(needs.set_env.outputs.doCheckout) }}
+      doClean:             ${{ fromJson(needs.set_env.outputs.doClean) }}
+      doBuild:             ${{ fromJson(needs.set_env.outputs.doBuild) }}
+      doDebian:            ${{ fromJson(needs.set_env.outputs.doDebian) }}
+      doDebNexusUpload:    ${{ fromJson(needs.set_env.outputs.doDebNexusUpload) }}
+      doDebJenkinsUpload:  ${{ fromJson(needs.set_env.outputs.doDebJenkinsUpload) }}
+      doJenkinsRegression: ${{ fromJson(needs.set_env.outputs.doJenkinsRegression) }}
+      gitRev:              ${{ fromJson(needs.set_env.outputs.gitRev) }}
+      buildOptions:        ${{ fromJson(needs.set_env.outputs.buildOptions) }}
       #secrets: inherit
 
 
