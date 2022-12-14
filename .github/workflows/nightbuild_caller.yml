@@ -178,6 +178,7 @@ jobs:
     with:
       architecture: ${{ github.event.inputs.architecture }}
       runner_label: ${{ needs.set_env.outputs.runs_on }}
+      doDebian: ${{ needs.set_env.outputs.doDebian }}
       #'[ "self-hosted", "X64" ]'
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
