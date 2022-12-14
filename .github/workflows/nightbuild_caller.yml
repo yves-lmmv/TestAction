@@ -134,6 +134,7 @@ jobs:
       config_path: ${{ needs.set_env.outputs.config_path }}
       architecture: ARM64
       runner_label: '[ "self-hosted", "ARM64" ]'
+      doDebian: false
       #architecture: "[self-hosted,  ARM64]"
       #env: ${{ github.event.inputs.environment }}
       #secrets: inherit
