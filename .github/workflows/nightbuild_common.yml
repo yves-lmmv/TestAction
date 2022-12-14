@@ -14,9 +14,9 @@ on:
       # REPO_PASSWORD:
       #   description: 'A token passed from the caller workflow'
       #   required: true
-      BOT_JENKINS_API_TOKEN:
-        description: 'A token passed from the caller workflow'
-        required: true
+      # BOT_JENKINS_API_TOKEN:
+      #   description: 'A token passed from the caller workflow'
+      #   required: true
     inputs:
       architecture:
         required: true
