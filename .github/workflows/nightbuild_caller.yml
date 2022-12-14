@@ -76,8 +76,8 @@ jobs:
           doDebNexusUpload='true'
           doDebJenkinsUpload='true'
           doJenkinsRegression='true'
-          gitRev: ''
-          buildOptions: '-v'
+          gitRev=''
+          buildOptions='-v'
           buildType="${{ github.event.inputs.buildType }}"
           if [[ "${buildType}" = "Checkout, Clean, Build" ]]; then
             echo "Checkout, Clean, Build..."
