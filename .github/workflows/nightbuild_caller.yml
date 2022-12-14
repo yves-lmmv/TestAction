@@ -35,7 +35,7 @@ on:
         - 'Checkout, Clean, Build'
         - 'Clean, Build'
         - 'Build'
-        - ${{env.test_string1}}
+        - '${{env.test_string1}}''
       postBuild:
         description: 'Post Build action. Debian/tgz generation, Nexus upload, Jenkins upload, Jenkins testing'
         required: true
