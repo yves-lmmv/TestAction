@@ -9,19 +9,18 @@ env:
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-    # secrets:
-    #     BOT_JENKINS_API_TOKEN:
-    #     description: 'A token passed from the caller workflow'
-    #     required: true
     inputs:
+      
       gitRev:
         description: 'git rev or tag to build. default: head of current branch'
         required: false
         default: ''
+      
       debVersion:
-        description: 'Version tag'
+        description: 'Version number for deb (usually tag name)'
         required: false
         default: ''
+      
       architecture:
         description: 'Architecture'
         required: true
@@ -30,6 +29,7 @@ on:
         options:
         - X64
         - ARM64
+
       buildType:
         # Code in set_env need to be aligned with the options name
         description: 'Build Type'
@@ -41,6 +41,7 @@ on:
         - 'Clean, Build'
         - 'Build'
         - 'Nothing'
+
       postBuild:
         # Code in set_env need to be aligned with the options name
         description: 'Post Build action. Debian/tgz generation, Nexus upload, Jenkins upload, Jenkins testing'
@@ -86,6 +87,14 @@ jobs:
           pkgOptions=""
           buildType="${{ github.event.inputs.buildType }}"
           postBuild="${{ github.event.inputs.postBuild }}"
+
+          echo "Validation of deb version name"
+          if [[ "${debVersion}" != "" ]]; then
+            if [[ ! "${debVersion}" =~ ^[[:digit:]] ]]; then
+              echo "debian version name MUST start with digit"
+              return 1
+            fi
+          fi
 
           echo "Parsing buildType option"
           if [[ "${buildType}" = "Checkout, Clean, Build" ]]; then
@@ -142,6 +151,7 @@ jobs:
             pkgOptions="--tgz --tgz-add-system-libs"
           fi
 
+          # Send All the variable to the github ENV to be retrieve for the outputs field
           echo "gitRev=${gitRev}"             >> $GITHUB_ENV
           echo "debVersion=${debVersion}"     >> $GITHUB_ENV
           echo "buildOptions=${buildOptions}" >> $GITHUB_ENV
@@ -155,6 +165,8 @@ jobs:
           echo "doTgzNexusUpload=${doTgzNexusUpload}"       >> $GITHUB_ENV
           echo "doDebJenkinsUpload=${doDebJenkinsUpload}"   >> $GITHUB_ENV
           echo "doJenkinsRegression=${doJenkinsRegression}" >> $GITHUB_ENV
+    
+    # here use the variable set just above and read them from the github ENV
     outputs:
       runs_on:      '[ "self-hosted", "${{ github.event.inputs.architecture }}"]'
       gitRev:       ${{ env.gitRev }}

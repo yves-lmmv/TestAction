@@ -9,13 +9,13 @@ on:
   workflow_call:
     secrets:
       REPO_USERNAME:
-        description: 'A token passed from the caller workflow'
+        description: 'Nexus Username'
         required: true
-      # REPO_PASSWORD:
-      #   description: 'A token passed from the caller workflow'
-      #   required: true
+      REPO_PASSWORD:
+        description: 'Nexus pw'
+        required: true
       BOT_JENKINS_API_TOKEN:
-        description: 'A token passed from the caller workflow'
+        description: 'token to be able to call jenkins API'
         required: true
     inputs:
       architecture:
